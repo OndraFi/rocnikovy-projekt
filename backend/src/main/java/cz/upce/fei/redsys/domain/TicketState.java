@@ -3,5 +3,7 @@ package cz.upce.fei.redsys.domain;
 public enum TicketState {
     OPEN,
     IN_PROGRESS,
-    DONE
+    FOR_REVIEW,
+    APPROVE,
+    PUBLISHED
 }

@@ -3,6 +3,8 @@ package cz.upce.fei.redsys.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(indexes = {
         @Index(name = "ix_ticket_project_id", columnList = "project_id")
@@ -20,25 +22,32 @@ public class Ticket {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, length = 160)
+    @Column(nullable = false)
     private String title;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TicketType type;
+    @Column(length = 2000)
+    private String description;
+
+    @Column(nullable = false,name = "created_at")
+    private LocalDateTime createDate=LocalDateTime.now();
+
+    @Column(name="updated_at")
+    private LocalDateTime updateDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TicketPriority priority;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TicketState state = TicketState.OPEN;
+    private TicketState state;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    @ToString.Exclude
-    private Project project;
+    @JoinColumn(name = "asigned_to", nullable = false)
+    private User asignedUser;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User author;
+
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private Article article;
 
     @Column(nullable = false)
     private Long projectTicketNumber;

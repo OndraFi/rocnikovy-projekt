@@ -38,7 +38,7 @@ public class TicketService {
 
         Ticket ticket = Ticket.builder()
                 .title(req.title())
-                .type(req.type())
+                .description(req.des)
                 .priority(req.priority())
                 .state(TicketState.OPEN)
                 .project(project)
@@ -75,8 +75,6 @@ public class TicketService {
         Ticket ticket = getTicketByProjectAndNumber(projectId, projectTicketNumber);
 
         ticket.setTitle(req.title());
-        ticket.setType(req.type());
-        ticket.setPriority(req.priority());
         ticket.setState(req.state());
 
         return toTicketResponse(ticketRepository.save(ticket));

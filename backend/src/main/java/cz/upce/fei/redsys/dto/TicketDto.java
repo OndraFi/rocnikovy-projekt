@@ -1,15 +1,13 @@
 package cz.upce.fei.redsys.dto;
 
-import cz.upce.fei.redsys.domain.Ticket;
-import cz.upce.fei.redsys.domain.TicketPriority;
-import cz.upce.fei.redsys.domain.TicketState;
-import cz.upce.fei.redsys.domain.TicketType;
+import cz.upce.fei.redsys.domain.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public final class TicketDto {
@@ -19,10 +17,13 @@ public final class TicketDto {
     public record TicketResponse(
             Long number,
             String title,
-            TicketType type,
-            TicketPriority priority,
+            String description,
+            LocalDateTime createDate,
+            LocalDateTime updateDate,
             TicketState state,
-            Long projectId
+            String asignedUserName,
+            String authorName,
+            Long articleId
     ) {}
 
     public record PaginatedTicketResponse(
@@ -66,10 +67,14 @@ public final class TicketDto {
         return TicketResponse.builder()
                 .number(ticket.getProjectTicketNumber())
                 .title(ticket.getTitle())
-                .type(ticket.getType())
-                .priority(ticket.getPriority())
+                .description(ticket.getDescription())
+                .createDate(ticket.getCreateDate())
+                .updateDate(ticket.getUpdateDate())
                 .state(ticket.getState())
-                .projectId(ticket.getProject() != null ? ticket.getProject().getId() : null)
+                .asignedUserName(ticket.getAsignedUser() != null ? ticket.getAsignedUser().getFullName() : null)
+                .authorName(ticket.getAuthor() != null ? ticket.getAuthor().getFullName() : null)
+                .articleId(ticket.getArticle() != null ? ticket.getArticle().getId() : null)
                 .build();
     }
+
 }

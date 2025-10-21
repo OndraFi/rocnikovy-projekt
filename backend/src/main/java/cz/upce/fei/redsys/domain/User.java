@@ -29,7 +29,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private List<Project> projects;
+    @Column(nullable = false, name= "full_name")
+    private String fullName;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 }
