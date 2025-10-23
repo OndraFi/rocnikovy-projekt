@@ -4,6 +4,6 @@ public enum TicketState {
     OPEN,
     IN_PROGRESS,
     FOR_REVIEW,
-    APPROVE,
+    APPROVED,
     PUBLISHED
 }
