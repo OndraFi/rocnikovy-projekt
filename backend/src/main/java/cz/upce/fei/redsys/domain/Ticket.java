@@ -6,9 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(indexes = {
-        @Index(name = "ix_ticket_project_id", columnList = "project_id")
-})
+@Table(name = "tickets")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,24 +27,24 @@ public class Ticket {
     private String description;
 
     @Column(nullable = false,name = "created_at")
-    private LocalDateTime createDate=LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name="updated_at")
-    private LocalDateTime updateDate;
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     private TicketState state;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "asigned_to", nullable = false)
-    private User asignedUser;
+    @JoinColumn(name = "assigned_to", nullable = false)
+    private User assignedUser;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User author;
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
+    @JoinColumn(name = "atricle_id", nullable = false)
     private Article article;
 
     @Column(nullable = false)

@@ -18,10 +18,10 @@ public final class TicketDto {
             Long number,
             String title,
             String description,
-            LocalDateTime createDate,
-            LocalDateTime updateDate,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt,
             TicketState state,
-            String asignedUserName,
+            String assignedUsername,
             String authorName,
             Long articleId
     ) {}
@@ -40,11 +40,17 @@ public final class TicketDto {
             @Pattern(regexp = "^[\\p{L}\\p{N}\\s.,!?;:'\"()\\[\\]{}\\-_/]+$",message = "{ticket.title.pattern}")
             String title,
 
-            @NotNull(message = "{common.required}")
-            TicketType type,
+            @Size(max = 2000, message = "{ticket.description.size}")
+            String description,
 
             @NotNull(message = "{common.required}")
-            TicketPriority priority
+            Long assignedUserId,
+
+            @NotNull(message = "{common.required}")
+            Long authorId,
+
+            @NotNull(message = "{common.required}")
+            Long articleId
     ) {}
 
     public record UpdateTicketRequest(
@@ -53,14 +59,14 @@ public final class TicketDto {
             @Pattern(regexp = "^[\\p{L}\\p{N}\\s.,!?;:'\"()\\[\\]{}\\-_/]+$",message = "{ticket.title.pattern}")
             String title,
 
-            @NotNull(message = "{common.required}")
-            TicketType type,
+            @Size(max = 2000, message = "{ticket.description.size}")
+            String description,
 
             @NotNull(message = "{common.required}")
-            TicketPriority priority,
+            TicketState state,
 
             @NotNull(message = "{common.required}")
-            TicketState state
+            Long assignedUserId
     ) {}
 
     public static TicketResponse toTicketResponse(Ticket ticket) {
@@ -68,10 +74,10 @@ public final class TicketDto {
                 .number(ticket.getProjectTicketNumber())
                 .title(ticket.getTitle())
                 .description(ticket.getDescription())
-                .createDate(ticket.getCreateDate())
-                .updateDate(ticket.getUpdateDate())
+                .createdAt(ticket.getCreatedAt())
+                .updatedAt(ticket.getUpdatedAt())
                 .state(ticket.getState())
-                .asignedUserName(ticket.getAsignedUser() != null ? ticket.getAsignedUser().getFullName() : null)
+                .assignedUsername(ticket.getAssignedUser() != null ? ticket.getAssignedUser().getFullName() : null)
                 .authorName(ticket.getAuthor() != null ? ticket.getAuthor().getFullName() : null)
                 .articleId(ticket.getArticle() != null ? ticket.getArticle().getId() : null)
                 .build();
