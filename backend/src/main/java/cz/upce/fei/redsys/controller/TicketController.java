@@ -25,80 +25,75 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@ApiResponses({
-        @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or expired token", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-})
-@RequestMapping(value = "/api/projects/{projectId}/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-@Tag(name = "Tickets", description = "Manage tickets within a project")
+@Tag(name = "Tickets", description = "Manage tickets")
 @SecurityRequirement(name = "bearerAuth")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or expired token",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Ticket not found",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+})
 public class TicketController {
 
     private final TicketService ticketService;
 
-    @Operation(summary = "Create ticket", description = "Create a ticket in a project. Title, type, priority required; state defaults to OPEN")
+    @Operation(summary = "Create ticket", description = "Create a new ticket. Title, assignee, author, and article are required; state defaults to OPEN")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Ticket created", content = @Content(schema = @Schema(implementation = TicketResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Project is not owned by current user", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Project does not exist", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "201", description = "Ticket created",
+                    content = @Content(schema = @Schema(implementation = TicketResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TicketResponse> create(@PathVariable Long projectId,
-                                                 @Valid @RequestBody CreateTicketRequest req) {
-        TicketResponse created = ticketService.create(projectId, req);
-        return ResponseEntity.created(URI.create("/api/projects/" + projectId + "/tickets/" + created.number()))
+    public ResponseEntity<TicketResponse> create(@Valid @RequestBody CreateTicketRequest req) {
+        TicketResponse created = ticketService.create(req);
+        return ResponseEntity.created(URI.create("/tickets/" + created.id()))
                 .body(created);
     }
 
-    @Operation(summary = "List tickets", description = "List tickets for a project with pagination")
+    @Operation(summary = "List tickets", description = "List tickets with pagination")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(schema = @Schema(implementation = PaginatedTicketResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Project is not owned by current user", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Project does not exist", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "Tickets found",
+                    content = @Content(schema = @Schema(implementation = PaginatedTicketResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<PaginatedTicketResponse> list(@PathVariable Long projectId,
-                                                        @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ticketService.list(projectId, pageable));
+    public ResponseEntity<PaginatedTicketResponse> list(@PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(ticketService.list(pageable));
     }
 
-    @Operation(summary = "Get ticket", description = "Get a ticket by number within the given project")
+    @Operation(summary = "Get ticket", description = "Get a ticket by ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket found", content = @Content(schema = @Schema(implementation = TicketResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Ticket/project is not owned by current user", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket/project does not exist", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "Ticket found",
+                    content = @Content(schema = @Schema(implementation = TicketResponse.class)))
     })
-    @GetMapping("/{ticketNumber}")
-    public ResponseEntity<TicketResponse> get(@PathVariable Long projectId,
-                                              @PathVariable Long ticketNumber) {
-        return ResponseEntity.ok(ticketService.get(projectId, ticketNumber));
+    @GetMapping("/{ticketId}")
+    public ResponseEntity<TicketResponse> get(@PathVariable Long ticketId) {
+        return ResponseEntity.ok(ticketService.get(ticketId));
     }
 
-    @Operation(summary = "Update ticket", description = "Update ticket fields within the given project")
+    @Operation(summary = "Update ticket", description = "Update ticket fields")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket updated", content = @Content(schema = @Schema(implementation = TicketResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Ticket/project is not owned by current user", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket/project does not exist", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "Ticket updated",
+                    content = @Content(schema = @Schema(implementation = TicketResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
-    @PutMapping(value = "/{ticketNumber}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TicketResponse> update(@PathVariable Long projectId,
-                                                 @PathVariable Long ticketNumber,
-                                                 @Valid @RequestBody UpdateTicketRequest req) {
-        return ResponseEntity.ok(ticketService.update(projectId, ticketNumber, req));
+    @PutMapping(value = "/{ticketId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TicketResponse> update(
+            @PathVariable Long ticketId,
+            @Valid @RequestBody UpdateTicketRequest req) {
+        return ResponseEntity.ok(ticketService.update(ticketId, req));
     }
 
-    @Operation(summary = "Delete ticket", description = "Delete a ticket within the given project")
+    @Operation(summary = "Delete ticket", description = "Delete a ticket")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Ticket deleted"),
-            @ApiResponse(responseCode = "403", description = "Ticket/project is not owned by current user", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket/project does not exist", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "204", description = "Ticket deleted")
     })
-    @DeleteMapping("/{ticketNumber}")
-    public ResponseEntity<Void> delete(@PathVariable Long projectId,
-                                       @PathVariable Long ticketNumber) {
-        ticketService.delete(projectId, ticketNumber);
+    @DeleteMapping("/{ticketId}")
+    public ResponseEntity<Void> delete(@PathVariable Long ticketId) {
+        ticketService.delete(ticketId);
         return ResponseEntity.noContent().build();
     }
 }

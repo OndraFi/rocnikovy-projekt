@@ -1,13 +1,14 @@
 package cz.upce.fei.redsys.dto;
 
 import cz.upce.fei.redsys.domain.*;
+import cz.upce.fei.redsys.dto.UserDto.UserResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public final class TicketDto {
@@ -15,14 +16,14 @@ public final class TicketDto {
 
     @Builder
     public record TicketResponse(
-            Long number,
+            Long id,
             String title,
             String description,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
+            Instant createdAt,
+            Instant updatedAt,
             TicketState state,
-            String assignedUsername,
-            String authorName,
+            UserResponse assignee,
+            UserResponse author,
             Long articleId
     ) {}
 
@@ -44,10 +45,7 @@ public final class TicketDto {
             String description,
 
             @NotNull(message = "{common.required}")
-            Long assignedUserId,
-
-            @NotNull(message = "{common.required}")
-            Long authorId,
+            String assigneeUsername,
 
             @NotNull(message = "{common.required}")
             Long articleId
@@ -65,22 +63,20 @@ public final class TicketDto {
             @NotNull(message = "{common.required}")
             TicketState state,
 
-            @NotNull(message = "{common.required}")
-            Long assignedUserId
+            String assigneeUsername
     ) {}
 
     public static TicketResponse toTicketResponse(Ticket ticket) {
         return TicketResponse.builder()
-                .number(ticket.getProjectTicketNumber())
+                .id(ticket.getId())
                 .title(ticket.getTitle())
                 .description(ticket.getDescription())
                 .createdAt(ticket.getCreatedAt())
                 .updatedAt(ticket.getUpdatedAt())
                 .state(ticket.getState())
-                .assignedUsername(ticket.getAssignedUser() != null ? ticket.getAssignedUser().getFullName() : null)
-                .authorName(ticket.getAuthor() != null ? ticket.getAuthor().getFullName() : null)
+                .assignee(ticket.getAssignee() != null ? UserDto.toUserResponse(ticket.getAssignee()) : null)
+                .author(ticket.getAuthor() != null ? UserDto.toUserResponse(ticket.getAuthor()) : null)
                 .articleId(ticket.getArticle() != null ? ticket.getArticle().getId() : null)
                 .build();
     }
-
 }

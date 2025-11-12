@@ -1,10 +1,8 @@
 package cz.upce.fei.redsys.service;
 
-import cz.upce.fei.redsys.domain.Project;
 import cz.upce.fei.redsys.domain.Ticket;
-import cz.upce.fei.redsys.domain.TicketPriority;
 import cz.upce.fei.redsys.domain.TicketState;
-import cz.upce.fei.redsys.domain.TicketType;
+import cz.upce.fei.redsys.domain.User;
 import cz.upce.fei.redsys.dto.TicketDto.CreateTicketRequest;
 import cz.upce.fei.redsys.dto.TicketDto.PaginatedTicketResponse;
 import cz.upce.fei.redsys.dto.TicketDto.UpdateTicketRequest;
@@ -19,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,15 +28,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class TicketServiceTest {
 
-    private static final Long PROJECT_ID = 1L;
-    private static final Long OTHER_PROJECT_ID = 2L;
     private static final Long TICKET_ID = 10L;
 
     @Mock
     private TicketRepository ticketRepository;
 
     @Mock
-    private ProjectService projectService;
+    private UserService userService;
+
+    @Mock
+    private AuthService authService;
 
     @Mock
     private Pageable pageable;
@@ -47,41 +45,43 @@ public class TicketServiceTest {
     @InjectMocks
     private TicketService ticketService;
 
-    private Project mockProject;
-    private Project otherProject;
     private Ticket mockTicket;
+    private User mockAssignee;
+    private User mockAuthor;
 
     @BeforeEach
     void setUp() {
-        mockProject = Project.builder().id(PROJECT_ID).name("Project X").build();
-        otherProject = Project.builder().id(OTHER_PROJECT_ID).name("Foreign Project").build();
+        mockAssignee = User.builder().id(2L).username("john.doe").build();
+        mockAuthor = User.builder().id(1L).username("alice").build();
 
         mockTicket = Ticket.builder()
                 .id(TICKET_ID)
                 .title("Initial Title")
-                .type(TicketType.BUG)
-                .priority(TicketPriority.HIGH)
+                .description("Initial Description")
                 .state(TicketState.OPEN)
-                .project(mockProject)
+                .assignee(mockAssignee)
+                .author(mockAuthor)
                 .build();
-
-        when(projectService.getOwnedProjectEntity(PROJECT_ID)).thenReturn(mockProject);
     }
 
     @Test
     void create_ShouldSaveNewTicketWithDefaultState() {
         CreateTicketRequest request = new CreateTicketRequest(
                 "New Feature",
-                TicketType.FEATURE,
-                TicketPriority.MEDIUM
+                "Some description",
+                "john.doe",
+                1L
         );
+
+        when(userService.requireUserByIdentifier("john.doe")).thenReturn(mockAssignee);
+        when(authService.currentUser()).thenReturn(mockAuthor);
         when(ticketRepository.save(any(Ticket.class))).thenReturn(mockTicket);
 
-        ticketService.create(PROJECT_ID, request);
+        ticketService.create(request);
 
         verify(ticketRepository, times(1)).save(argThat(ticket ->
                 ticket.getTitle().equals("New Feature") &&
-                        ticket.getProject().getId().equals(PROJECT_ID) &&
+                        ticket.getAssignee().getUsername().equals("john.doe") &&
                         ticket.getState() == TicketState.OPEN
         ));
     }
@@ -91,22 +91,21 @@ public class TicketServiceTest {
         List<Ticket> ticketList = List.of(mockTicket);
         Page<Ticket> ticketPage = new PageImpl<>(ticketList, pageable, 1L);
 
-        when(ticketRepository.findAllByProject(mockProject, pageable)).thenReturn(ticketPage);
+        when(ticketRepository.findAll(pageable)).thenReturn(ticketPage);
 
-        PaginatedTicketResponse response = ticketService.list(PROJECT_ID, pageable);
+        PaginatedTicketResponse response = ticketService.list(pageable);
 
         assertNotNull(response);
         assertEquals(1, response.totalElements());
         assertEquals(1, response.tickets().size());
-        verify(projectService, times(1)).getOwnedProjectEntity(PROJECT_ID);
-        verify(ticketRepository, times(1)).findAllByProject(mockProject, pageable);
+        verify(ticketRepository, times(1)).findAll(pageable);
     }
 
     @Test
-    void get_ShouldReturnTicketResponse_WhenFoundAndOwned() {
+    void get_ShouldReturnTicketResponse_WhenFound() {
         when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.of(mockTicket));
 
-        ticketService.get(PROJECT_ID, TICKET_ID);
+        ticketService.get(TICKET_ID);
 
         verify(ticketRepository, times(1)).findById(TICKET_ID);
     }
@@ -116,17 +115,7 @@ public class TicketServiceTest {
         when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () ->
-                ticketService.get(PROJECT_ID, TICKET_ID)
-        );
-    }
-
-    @Test
-    void get_ShouldThrowAccessDenied_WhenTicketBelongsToOtherProject() {
-        mockTicket.setProject(otherProject);
-        when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.of(mockTicket));
-
-        assertThrows(AccessDeniedException.class, () ->
-                ticketService.get(PROJECT_ID, TICKET_ID)
+                ticketService.get(TICKET_ID)
         );
     }
 
@@ -134,52 +123,41 @@ public class TicketServiceTest {
     void update_ShouldUpdateAllFieldsAndSave() {
         UpdateTicketRequest request = new UpdateTicketRequest(
                 "Updated Title",
-                TicketType.TASK,
-                TicketPriority.LOW,
-                TicketState.IN_PROGRESS
+                "Updated Description",
+                TicketState.IN_PROGRESS,
+                "john.doe"
         );
 
         when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.of(mockTicket));
+        when(userService.requireUserByIdentifier("john.doe")).thenReturn(mockAssignee);
         when(ticketRepository.save(any(Ticket.class))).thenReturn(mockTicket);
 
-        ticketService.update(PROJECT_ID, TICKET_ID, request);
+        ticketService.update(TICKET_ID, request);
 
         verify(ticketRepository, times(1)).save(argThat(ticket ->
                 ticket.getTitle().equals("Updated Title") &&
-                        ticket.getType() == TicketType.TASK &&
-                        ticket.getState() == TicketState.IN_PROGRESS
+                        ticket.getDescription().equals("Updated Description") &&
+                        ticket.getState() == TicketState.IN_PROGRESS &&
+                        ticket.getAssignee().getUsername().equals("john.doe")
         ));
     }
 
     @Test
-    void update_ShouldThrowAccessDenied_WhenTicketBelongsToOtherProject() {
-        UpdateTicketRequest request = new UpdateTicketRequest("T", TicketType.TASK, TicketPriority.LOW, TicketState.IN_PROGRESS);
-        mockTicket.setProject(otherProject);
-        when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.of(mockTicket));
+    void delete_ShouldCallRepositoryDelete_WhenFound() {
+        when(ticketRepository.existsById(TICKET_ID)).thenReturn(true);
+        doNothing().when(ticketRepository).deleteById(TICKET_ID);
 
-        assertThrows(AccessDeniedException.class, () ->
-                ticketService.update(PROJECT_ID, TICKET_ID, request)
-        );
-        verify(ticketRepository, never()).save(any());
+        ticketService.delete(TICKET_ID);
+
+        verify(ticketRepository, times(1)).deleteById(TICKET_ID);
     }
 
     @Test
-    void delete_ShouldCallRepositoryDelete_WhenOwned() {
-        when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.of(mockTicket));
-        doNothing().when(ticketRepository).delete(mockTicket);
+    void delete_ShouldThrowNotFound_WhenTicketDoesNotExist() {
+        when(ticketRepository.existsById(TICKET_ID)).thenReturn(false);
 
-        ticketService.delete(PROJECT_ID, TICKET_ID);
-
-        verify(ticketRepository, times(1)).delete(mockTicket);
-    }
-
-    @Test
-    void delete_ShouldThrowAccessDenied_WhenTicketBelongsToOtherProject() {
-        mockTicket.setProject(otherProject);
-        when(ticketRepository.findById(TICKET_ID)).thenReturn(Optional.of(mockTicket));
-
-        assertThrows(AccessDeniedException.class, () ->
-                ticketService.delete(PROJECT_ID, TICKET_ID)
+        assertThrows(EntityNotFoundException.class, () ->
+                ticketService.delete(TICKET_ID)
         );
         verify(ticketRepository, never()).delete(any());
     }

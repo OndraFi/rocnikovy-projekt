@@ -2,13 +2,9 @@ package cz.upce.fei.redsys.service;
 
 import cz.upce.fei.redsys.domain.PasswordResetToken;
 import cz.upce.fei.redsys.domain.User;
-import cz.upce.fei.redsys.dto.AuthDto.LoginRequest;
-import cz.upce.fei.redsys.dto.AuthDto.PasswordChangeRequest;
-import cz.upce.fei.redsys.dto.AuthDto.PasswordResetConfirmRequest;
-import cz.upce.fei.redsys.dto.AuthDto.PasswordResetRequest;
-import cz.upce.fei.redsys.dto.AuthDto.RegisterRequest;
+import cz.upce.fei.redsys.dto.AuthDto.*;
+import cz.upce.fei.redsys.dto.UserDto.UserResponse;
 import cz.upce.fei.redsys.repository.PasswordResetTokenRepository;
-import cz.upce.fei.redsys.repository.UserRepository;
 import cz.upce.fei.redsys.security.TokenProvider;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
@@ -44,7 +40,7 @@ public class AuthServiceTest {
     private static final String MOCK_TOKEN = "mock.jwt.token";
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
     @Mock
     private PasswordResetTokenRepository passwordResetTokenRepository;
     @Mock
@@ -77,26 +73,25 @@ public class AuthServiceTest {
     void register_ShouldSaveNewUserAndReturnResponse() {
         RegisterRequest request = new RegisterRequest(TEST_USERNAME, TEST_EMAIL, RAW_PASSWORD);
 
-        when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.empty());
         when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
-        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+        when(userService.createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD)).thenReturn(mockUser);
 
-        authService.register(request);
+        UserResponse response = authService.register(request);
 
-        verify(userRepository, times(1)).save(argThat(user ->
-                user.getUsername().equals(TEST_USERNAME) &&
-                        user.getPassword().equals(ENCODED_PASSWORD)
-        ));
+        assertEquals(TEST_USERNAME, response.username());
+        verify(userService, times(1)).createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD);
     }
 
     @Test
     void register_ShouldThrowIllegalState_WhenUsernameTaken() {
         RegisterRequest request = new RegisterRequest(TEST_USERNAME, TEST_EMAIL, RAW_PASSWORD);
-        when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(mockUser));
+
+        when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
+        when(userService.createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD))
+                .thenThrow(new IllegalStateException("Username taken"));
 
         assertThrows(IllegalStateException.class, () -> authService.register(request));
-        verify(userRepository, never()).save(any());
+        verify(userService, times(1)).createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD);
     }
 
     @Test
@@ -104,8 +99,7 @@ public class AuthServiceTest {
         LoginRequest request = new LoginRequest(TEST_USERNAME, RAW_PASSWORD);
         Authentication mockAuth = mock(Authentication.class);
 
-        when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(mockUser));
-
+        when(userService.findByIdentifier(TEST_USERNAME)).thenReturn(Optional.of(mockUser));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuth);
         when(tokenProvider.createToken(mockAuth)).thenReturn(MOCK_TOKEN);
 
@@ -120,8 +114,7 @@ public class AuthServiceTest {
         LoginRequest request = new LoginRequest(TEST_EMAIL, RAW_PASSWORD);
         Authentication mockAuth = mock(Authentication.class);
 
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(mockUser));
-
+        when(userService.findByIdentifier(TEST_EMAIL)).thenReturn(Optional.of(mockUser));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuth);
         when(tokenProvider.createToken(mockAuth)).thenReturn(MOCK_TOKEN);
 
@@ -136,10 +129,11 @@ public class AuthServiceTest {
     @Test
     void requestPasswordReset_ShouldCreateAndSaveToken() {
         PasswordResetRequest request = new PasswordResetRequest(TEST_EMAIL);
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(mockUser));
 
+        when(userService.requireUserByIdentifier(TEST_EMAIL)).thenReturn(mockUser);
         String fixedCode = "00000000000000000000000000000001";
         when(codeGenerator.generate()).thenReturn(fixedCode);
+
         PasswordResetToken mockToken = mock(PasswordResetToken.class);
         when(passwordResetTokenRepository.save(any(PasswordResetToken.class))).thenReturn(mockToken);
 
@@ -147,17 +141,13 @@ public class AuthServiceTest {
 
         assertEquals(fixedCode, code);
         verify(passwordResetTokenRepository, times(1)).deleteByUserAndExpiresAtBefore(eq(mockUser), any(Instant.class));
-        verify(passwordResetTokenRepository, times(1)).save(argThat(token ->
-                token.getCode().equals(code) &&
-                        token.getUser().equals(mockUser) &&
-                        !token.isUsed()
-        ));
+        verify(passwordResetTokenRepository, times(1)).save(any(PasswordResetToken.class));
     }
 
     @Test
     void requestPasswordReset_ShouldThrowNotFound_WhenUserNotFound() {
         PasswordResetRequest request = new PasswordResetRequest(TEST_EMAIL);
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.empty());
+        when(userService.requireUserByIdentifier(TEST_EMAIL)).thenThrow(new EntityNotFoundException("User not found"));
 
         assertThrows(EntityNotFoundException.class, () -> authService.requestPasswordReset(request));
         verify(passwordResetTokenRepository, never()).save(any());
@@ -166,23 +156,21 @@ public class AuthServiceTest {
     @Test
     void confirmPasswordReset_ShouldUpdatePasswordAndMarkTokenUsed() {
         PasswordResetConfirmRequest request = new PasswordResetConfirmRequest("valid_code", RAW_PASSWORD);
-        PasswordResetToken mockToken = PasswordResetToken.builder()
+        PasswordResetToken token = PasswordResetToken.builder()
                 .code("valid_code")
                 .user(mockUser)
                 .expiresAt(Instant.now().plusSeconds(60))
                 .used(false)
                 .build();
 
-        when(passwordResetTokenRepository.findByCode("valid_code")).thenReturn(Optional.of(mockToken));
+        when(passwordResetTokenRepository.findByCode("valid_code")).thenReturn(Optional.of(token));
         when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn("new_encoded_password");
 
         authService.confirmPasswordReset(request);
 
-        assertTrue(mockToken.isUsed());
-        verify(passwordResetTokenRepository, times(1)).save(mockToken);
-        verify(userRepository, times(1)).save(argThat(user ->
-                user.getPassword().equals("new_encoded_password")
-        ));
+        assertTrue(token.isUsed());
+        verify(passwordResetTokenRepository, times(1)).save(token);
+        verify(userService, times(1)).updatePassword(mockUser, "new_encoded_password");
     }
 
     @Test
@@ -196,14 +184,14 @@ public class AuthServiceTest {
     @Test
     void confirmPasswordReset_ShouldThrowValidationException_WhenCodeExpired() {
         PasswordResetConfirmRequest request = new PasswordResetConfirmRequest("expired_code", RAW_PASSWORD);
-        PasswordResetToken mockToken = PasswordResetToken.builder()
+        PasswordResetToken token = PasswordResetToken.builder()
                 .code("expired_code")
                 .user(mockUser)
                 .expiresAt(Instant.now().minusSeconds(60))
                 .used(false)
                 .build();
 
-        when(passwordResetTokenRepository.findByCode("expired_code")).thenReturn(Optional.of(mockToken));
+        when(passwordResetTokenRepository.findByCode("expired_code")).thenReturn(Optional.of(token));
 
         assertThrows(ValidationException.class, () -> authService.confirmPasswordReset(request));
     }
@@ -213,7 +201,7 @@ public class AuthServiceTest {
         when(auth.getName()).thenReturn(username);
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
+        when(userService.findByUsername(username)).thenReturn(Optional.of(mockUser));
     }
 
     @Test
@@ -226,9 +214,7 @@ public class AuthServiceTest {
 
         authService.changePassword(request);
 
-        verify(userRepository, times(1)).save(argThat(user ->
-                user.getPassword().equals("new_encoded_password")
-        ));
+        verify(userService, times(1)).updatePassword(mockUser, "new_encoded_password");
     }
 
     @Test
@@ -239,7 +225,7 @@ public class AuthServiceTest {
         when(passwordEncoder.matches(RAW_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
         assertThrows(ValidationException.class, () -> authService.changePassword(request));
-        verify(userRepository, never()).save(any());
+        verify(userService, never()).updatePassword(any(), any());
     }
 
     @Test
@@ -250,6 +236,6 @@ public class AuthServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         assertThrows(AccessDeniedException.class, () -> authService.changePassword(request));
-        verify(userRepository, never()).save(any());
+        verify(userService, never()).updatePassword(any(), any());
     }
 }

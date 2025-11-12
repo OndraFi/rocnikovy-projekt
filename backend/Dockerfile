@@ -1,19 +1,18 @@
-FROM eclipse-temurin:17-jdk-focal AS builder
-
+FROM eclipse-temurin:21-jdk-jammy AS builder
 WORKDIR /app
 
-COPY gradlew .
+COPY gradlew ./
 COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+COPY build.gradle settings.gradle ./
+
+RUN chmod +x gradlew
+RUN ./gradlew dependencies --no-daemon || return 0
 
 COPY src src
 
-RUN chmod +x gradlew
-
 RUN ./gradlew bootJar --no-daemon
 
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 EXPOSE 8080
 

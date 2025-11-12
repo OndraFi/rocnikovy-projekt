@@ -1,8 +1,8 @@
 package cz.upce.fei.redsys.service;
 
-import cz.upce.fei.redsys.domain.Project;
 import cz.upce.fei.redsys.domain.Ticket;
 import cz.upce.fei.redsys.domain.TicketState;
+import cz.upce.fei.redsys.domain.User;
 import cz.upce.fei.redsys.dto.TicketDto;
 import cz.upce.fei.redsys.dto.TicketDto.CreateTicketRequest;
 import cz.upce.fei.redsys.dto.TicketDto.TicketResponse;
@@ -26,31 +26,28 @@ import static cz.upce.fei.redsys.dto.TicketDto.toTicketResponse;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
-    private final ProjectService projectService;
+    private final UserService userService;
+    private final AuthService authService;
 
     @Transactional
-    public TicketResponse create(Long projectId, CreateTicketRequest req) {
-        Project project = projectService.getOwnedProjectEntity(projectId);
-
-        Long nextNumber = ticketRepository.findMaxProjectTicketNumber(project)
-                .map(n -> n + 1)
-                .orElse(1L);
+    public TicketResponse create(CreateTicketRequest req) {
+        User assignee = (req.assigneeUsername() != null && !req.assigneeUsername().isBlank()) ?
+                userService.requireUserByIdentifier(req.assigneeUsername()) : null;
 
         Ticket ticket = Ticket.builder()
                 .title(req.title())
-                .description(req.des)
-                .priority(req.priority())
+                .description(req.description())
                 .state(TicketState.OPEN)
-                .project(project)
-                .projectTicketNumber(nextNumber)
+                .assignee(assignee)
+                .author(authService.currentUser())
+                .article(null)
                 .build();
 
         return toTicketResponse(ticketRepository.save(ticket));
     }
 
-    public PaginatedTicketResponse list(Long projectId, Pageable pageable) {
-        Project project = projectService.getOwnedProjectEntity(projectId);
-        Page<Ticket> ticketPage = ticketRepository.findAllByProject(project, pageable);
+    public PaginatedTicketResponse list(Pageable pageable) {
+        Page<Ticket> ticketPage = ticketRepository.findAll(pageable);
 
         List<TicketResponse> ticketResponses = ticketPage.getContent().stream()
                 .map(TicketDto::toTicketResponse)
@@ -65,30 +62,38 @@ public class TicketService {
         );
     }
 
-    public TicketResponse get(Long projectId, Long projectTicketNumber) {
-        Ticket ticket = getTicketByProjectAndNumber(projectId, projectTicketNumber);
+    public TicketResponse get(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
         return toTicketResponse(ticket);
     }
 
     @Transactional
-    public TicketResponse update(Long projectId, Long projectTicketNumber, UpdateTicketRequest req) {
-        Ticket ticket = getTicketByProjectAndNumber(projectId, projectTicketNumber);
+    public TicketResponse update(Long id, UpdateTicketRequest req) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
 
         ticket.setTitle(req.title());
+        ticket.setDescription(req.description());
         ticket.setState(req.state());
+
+        User assignee = (req.assigneeUsername() != null && !req.assigneeUsername().isBlank()) ?
+                userService.requireUserByIdentifier(req.assigneeUsername()) : null;
+        ticket.setAssignee(assignee);
 
         return toTicketResponse(ticketRepository.save(ticket));
     }
 
     @Transactional
-    public void delete(Long projectId, Long projectTicketNumber) {
-        Ticket ticket = getTicketByProjectAndNumber(projectId, projectTicketNumber);
-        ticketRepository.delete(ticket);
+    public void delete(Long id) {
+        if (!ticketRepository.existsById(id)) {
+            throw new EntityNotFoundException("Ticket not found");
+        }
+        ticketRepository.deleteById(id);
     }
 
-    private Ticket getTicketByProjectAndNumber(Long projectId, Long projectTicketNumber) {
-        Project project = projectService.getOwnedProjectEntity(projectId);
-        return ticketRepository.findByProjectAndProjectTicketNumber(project, projectTicketNumber)
+    public Ticket findById(Long id) {
+        return ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
     }
 }

@@ -3,7 +3,9 @@ package cz.upce.fei.redsys.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tickets")
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class Ticket {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -26,27 +29,36 @@ public class Ticket {
     @Column(length = 2000)
     private String description;
 
-    @Column(nullable = false,name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 
     @Column(name="updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Enumerated(EnumType.STRING)
-    private TicketState state;
+    @Column(nullable = false)
+    @Builder.Default
+    private TicketState state = TicketState.OPEN;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to", nullable = false)
-    private User assignedUser;
+    @JoinColumn(name = "assigned_to")
+    private User assignee;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User author;
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "atricle_id", nullable = false)
+    @JoinColumn(name = "article_id", nullable = false)
     private Article article;
 
-    @Column(nullable = false)
-    private Long projectTicketNumber;
+    @OneToMany(mappedBy = "ticket", orphanRemoval = true)
+    @Builder.Default
+    private List<TicketComment> comments = new ArrayList<>();
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
+    }
 }

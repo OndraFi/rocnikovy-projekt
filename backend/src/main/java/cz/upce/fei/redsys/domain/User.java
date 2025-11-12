@@ -3,8 +3,6 @@ package cz.upce.fei.redsys.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "users",
         indexes = {
@@ -34,4 +32,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
 }
