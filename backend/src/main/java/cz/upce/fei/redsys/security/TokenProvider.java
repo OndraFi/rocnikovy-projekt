@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,8 +45,14 @@ public class TokenProvider {
     public Authentication toAuthentication(String token) {
         Claims claims = parseAndValidate(token);
         String username = claims.getSubject();
-        List<String> authorities = claims.get("authorities", ArrayList.class);
-        List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream().map(SimpleGrantedAuthority::new).toList();
+        List<?> authoritiesRaw = claims.get("authorities", List.class);
+        List<SimpleGrantedAuthority> grantedAuthorities = authoritiesRaw == null
+                ? List.of()
+                : authoritiesRaw.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
         return new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
     }
 

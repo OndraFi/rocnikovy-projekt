@@ -31,7 +31,8 @@ public class User {
     private String fullName;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 
     @Column(nullable = false)
     @Builder.Default

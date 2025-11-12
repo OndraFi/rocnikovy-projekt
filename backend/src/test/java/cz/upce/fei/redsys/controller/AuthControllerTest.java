@@ -29,6 +29,7 @@ public class AuthControllerTest {
 
     private static final String API_BASE = "/api/auth";
     private static final String TEST_USER = "testUser";
+    private static final String TEST_FULLNAME = "Test User";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_PASS = "securePassword";
 
@@ -43,8 +44,8 @@ public class AuthControllerTest {
 
     @Test
     void register_ShouldReturnUserAnd200() throws Exception {
-        RegisterRequest request = new RegisterRequest(TEST_USER, TEST_EMAIL, TEST_PASS);
-        UserResponse mockUserResponse = new UserResponse(1L, TEST_USER);
+        RegisterRequest request = new RegisterRequest(TEST_USER, TEST_FULLNAME,TEST_EMAIL, TEST_PASS);
+        UserResponse mockUserResponse = new UserResponse(1L, TEST_USER, TEST_FULLNAME);
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(mockUserResponse);
 
@@ -54,7 +55,8 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.username").value(TEST_USER));
+                .andExpect(jsonPath("$.username").value(TEST_USER))
+                .andExpect(jsonPath("$.fullName").value(TEST_FULLNAME));
     }
 
     @Test

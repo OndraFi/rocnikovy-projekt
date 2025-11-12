@@ -45,7 +45,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User createUser(String username, String email, String hashedPassword) {
+    public User createUser(String username, String fullName, String email, String hashedPassword) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalStateException("Username already taken");
         }
@@ -55,6 +55,7 @@ public class UserService implements UserDetailsService {
 
         User user = User.builder()
                 .username(username)
+                .fullName(fullName)
                 .email(email)
                 .password(hashedPassword)
                 .build();

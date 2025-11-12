@@ -34,6 +34,7 @@ import static org.mockito.Mockito.*;
 public class AuthServiceTest {
 
     private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_FULLNAME = "Test User";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String RAW_PASSWORD = "password123";
     private static final String ENCODED_PASSWORD = "encoded_password";
@@ -71,27 +72,27 @@ public class AuthServiceTest {
 
     @Test
     void register_ShouldSaveNewUserAndReturnResponse() {
-        RegisterRequest request = new RegisterRequest(TEST_USERNAME, TEST_EMAIL, RAW_PASSWORD);
+        RegisterRequest request = new RegisterRequest(TEST_USERNAME, TEST_FULLNAME,TEST_EMAIL, RAW_PASSWORD);
 
         when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
-        when(userService.createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD)).thenReturn(mockUser);
+        when(userService.createUser(TEST_USERNAME, TEST_FULLNAME,TEST_EMAIL, ENCODED_PASSWORD)).thenReturn(mockUser);
 
         UserResponse response = authService.register(request);
 
         assertEquals(TEST_USERNAME, response.username());
-        verify(userService, times(1)).createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD);
+        verify(userService, times(1)).createUser(TEST_USERNAME, TEST_FULLNAME,TEST_EMAIL, ENCODED_PASSWORD);
     }
 
     @Test
     void register_ShouldThrowIllegalState_WhenUsernameTaken() {
-        RegisterRequest request = new RegisterRequest(TEST_USERNAME, TEST_EMAIL, RAW_PASSWORD);
+        RegisterRequest request = new RegisterRequest(TEST_USERNAME, TEST_FULLNAME,TEST_EMAIL, RAW_PASSWORD);
 
         when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
-        when(userService.createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD))
+        when(userService.createUser(TEST_USERNAME, TEST_FULLNAME,TEST_EMAIL, ENCODED_PASSWORD))
                 .thenThrow(new IllegalStateException("Username taken"));
 
         assertThrows(IllegalStateException.class, () -> authService.register(request));
-        verify(userService, times(1)).createUser(TEST_USERNAME, TEST_EMAIL, ENCODED_PASSWORD);
+        verify(userService, times(1)).createUser(TEST_USERNAME, TEST_FULLNAME,TEST_EMAIL, ENCODED_PASSWORD);
     }
 
     @Test

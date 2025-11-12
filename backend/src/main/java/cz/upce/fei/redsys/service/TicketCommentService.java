@@ -2,7 +2,6 @@ package cz.upce.fei.redsys.service;
 
 import cz.upce.fei.redsys.domain.Ticket;
 import cz.upce.fei.redsys.domain.TicketComment;
-import cz.upce.fei.redsys.domain.User;
 import cz.upce.fei.redsys.dto.TicketCommentDto;
 import cz.upce.fei.redsys.dto.TicketCommentDto.TicketCommentResponse;
 import cz.upce.fei.redsys.dto.TicketCommentDto.CreateTicketCommentRequest;
@@ -24,7 +23,7 @@ public class TicketCommentService {
 
     @Transactional
     public Page<TicketCommentResponse> listComments(Long ticketId, Pageable pageable) {
-        Ticket ticket = ticketService.findById(ticketId);
+        Ticket ticket = ticketService.requireTicketById(ticketId);
 
         return commentRepository.findAllByTicketOrderByTicketCommentNumberDesc(ticket, pageable)
                 .map(TicketCommentDto::toResponse);
@@ -32,7 +31,7 @@ public class TicketCommentService {
 
     @Transactional
     public TicketCommentResponse createComment(Long ticketId, CreateTicketCommentRequest req) {
-        Ticket ticket = ticketService.findById(ticketId);
+        Ticket ticket = ticketService.requireTicketById(ticketId);
         int nextNumber = commentRepository.findMaxTicketCommentNumberByTicket(ticket) + 1;
 
         TicketComment comment = TicketComment.builder()

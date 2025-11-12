@@ -1,5 +1,6 @@
 package cz.upce.fei.redsys.service;
 
+import cz.upce.fei.redsys.domain.Article;
 import cz.upce.fei.redsys.domain.Ticket;
 import cz.upce.fei.redsys.domain.TicketState;
 import cz.upce.fei.redsys.domain.User;
@@ -40,6 +41,9 @@ public class TicketServiceTest {
     private AuthService authService;
 
     @Mock
+    private ArticleService articleService;
+
+    @Mock
     private Pageable pageable;
 
     @InjectMocks
@@ -73,6 +77,9 @@ public class TicketServiceTest {
                 1L
         );
 
+        Article mockArticle = Article.builder().id(1L).title("Test Article").build();
+        when(articleService.requireArticleById(1L)).thenReturn(mockArticle);
+
         when(userService.requireUserByIdentifier("john.doe")).thenReturn(mockAssignee);
         when(authService.currentUser()).thenReturn(mockAuthor);
         when(ticketRepository.save(any(Ticket.class))).thenReturn(mockTicket);
@@ -82,7 +89,8 @@ public class TicketServiceTest {
         verify(ticketRepository, times(1)).save(argThat(ticket ->
                 ticket.getTitle().equals("New Feature") &&
                         ticket.getAssignee().getUsername().equals("john.doe") &&
-                        ticket.getState() == TicketState.OPEN
+                        ticket.getState() == TicketState.OPEN &&
+                        ticket.getArticle().equals(mockArticle)
         ));
     }
 

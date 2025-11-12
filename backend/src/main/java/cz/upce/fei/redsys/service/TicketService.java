@@ -1,5 +1,6 @@
 package cz.upce.fei.redsys.service;
 
+import cz.upce.fei.redsys.domain.Article;
 import cz.upce.fei.redsys.domain.Ticket;
 import cz.upce.fei.redsys.domain.TicketState;
 import cz.upce.fei.redsys.domain.User;
@@ -28,11 +29,13 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final UserService userService;
     private final AuthService authService;
+    private final ArticleService articleService;
 
     @Transactional
     public TicketResponse create(CreateTicketRequest req) {
         User assignee = (req.assigneeUsername() != null && !req.assigneeUsername().isBlank()) ?
                 userService.requireUserByIdentifier(req.assigneeUsername()) : null;
+        Article article = articleService.requireArticleById(req.articleId());
 
         Ticket ticket = Ticket.builder()
                 .title(req.title())
@@ -40,7 +43,7 @@ public class TicketService {
                 .state(TicketState.OPEN)
                 .assignee(assignee)
                 .author(authService.currentUser())
-                .article(null)
+                .article(article)
                 .build();
 
         return toTicketResponse(ticketRepository.save(ticket));
@@ -92,7 +95,7 @@ public class TicketService {
         ticketRepository.deleteById(id);
     }
 
-    public Ticket findById(Long id) {
+    public Ticket requireTicketById(Long id) {
         return ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
     }

@@ -16,6 +16,11 @@ public final class AuthDto {
             String username,
 
             @NotBlank(message = "{common.required}")
+            @Size(min = 3, max = 50, message = "{user.fullname.size}")
+            @Pattern(regexp = "^[a-zA-Z ]+$", message = "{user.fullname.pattern}")
+            String fullName,
+
+            @NotBlank(message = "{common.required}")
             @Email(message = "{common.email}")
             String email,
 

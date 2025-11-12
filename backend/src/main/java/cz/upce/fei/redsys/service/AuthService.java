@@ -37,7 +37,7 @@ public class AuthService {
     @Transactional
     public UserResponse register(RegisterRequest req) {
         String hashedPassword = passwordEncoder.encode(req.password());
-        User user = userService.createUser(req.username(), req.email(), hashedPassword);
+        User user = userService.createUser(req.username(), req.fullName(), req.email(), hashedPassword);
         return UserDto.toUserResponse(user);
     }
 
