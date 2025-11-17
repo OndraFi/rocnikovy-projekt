@@ -116,6 +116,7 @@ public class AuthServiceTest {
         Authentication mockAuth = mock(Authentication.class);
 
         when(userService.findByIdentifier(TEST_EMAIL)).thenReturn(Optional.of(mockUser));
+        when(userService.findByIdentifier(TEST_USERNAME)).thenReturn(Optional.of(mockUser));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuth);
         when(tokenProvider.createToken(mockAuth)).thenReturn(MOCK_TOKEN);
 

@@ -1,10 +1,14 @@
 package cz.upce.fei.redsys.security;
 
+import cz.upce.fei.redsys.domain.User;
+import cz.upce.fei.redsys.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TokenProvider {
 
     @Value("${security.jwt.secret:}")
@@ -25,6 +30,8 @@ public class TokenProvider {
 
     private static final String ISSUER = "SemA";
     private static final long EXPIRY_SECONDS = 900L; // 15 minutes
+
+    private final UserService userService;
 
     public String createToken(Authentication authentication) {
         String username = authentication.getName();
@@ -45,6 +52,14 @@ public class TokenProvider {
     public Authentication toAuthentication(String token) {
         Claims claims = parseAndValidate(token);
         String username = claims.getSubject();
+
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
+
+        if (!user.isActive()) {
+            throw new AccessDeniedException("User is inactive");
+        }
+
         List<?> authoritiesRaw = claims.get("authorities", List.class);
         List<SimpleGrantedAuthority> grantedAuthorities = authoritiesRaw == null
                 ? List.of()

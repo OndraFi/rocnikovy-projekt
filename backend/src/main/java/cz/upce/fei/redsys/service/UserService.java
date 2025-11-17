@@ -2,8 +2,8 @@ package cz.upce.fei.redsys.service;
 
 import cz.upce.fei.redsys.domain.User;
 import cz.upce.fei.redsys.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -21,12 +21,20 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User u = userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+        if (!user.isActive()) {
+            throw new UsernameNotFoundException("User is inactive");
+        }
+
+        List<SimpleGrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
+
         return org.springframework.security.core.userdetails.User
-                .withUsername(u.getUsername())
-                .password(u.getPassword())
+                .withUsername(user.getUsername())
+                .password(user.getPassword())
                 .authorities(authorities)
                 .build();
     }
@@ -70,6 +78,6 @@ public class UserService implements UserDetailsService {
 
     public User requireUserByIdentifier(String identifier) {
         return findByIdentifier(identifier)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
     }
 }

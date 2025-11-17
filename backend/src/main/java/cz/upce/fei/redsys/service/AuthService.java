@@ -43,6 +43,14 @@ public class AuthService {
 
     public String login(LoginRequest req) {
         String username = resolveUsernameFromIdentifier(req.identifier());
+
+        User user = userService.findByIdentifier(username)
+                .orElseThrow(() -> new AccessDeniedException("Not authenticated"));
+
+        if (!user.isActive()) {
+            throw new AccessDeniedException("User is inactive");
+        }
+
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, req.password())
         );
@@ -90,8 +98,13 @@ public class AuthService {
     }
 
     public User currentUser() {
-        return userService.findByUsername(currentUsername())
+        User user = userService.findByUsername(currentUsername())
                 .orElseThrow(() -> new AccessDeniedException("Not authenticated"));
+
+        if (!user.isActive()) {
+            throw new AccessDeniedException("User is inactive");
+        }
+        return user;
     }
 
     private String currentUsername() {
