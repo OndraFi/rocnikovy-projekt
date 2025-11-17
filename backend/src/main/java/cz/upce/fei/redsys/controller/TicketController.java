@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ import java.net.URI;
 @RestController
 @RequestMapping(value = "/api/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Tickets", description = "Manage tickets")
 @SecurityRequirement(name = "bearerAuth")
 @ApiResponses({
@@ -48,6 +50,7 @@ public class TicketController {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TicketResponse> create(@Valid @RequestBody CreateTicketRequest req) {
+        log.debug("POST /api/tickets: {}", req);
         TicketResponse created = ticketService.create(req);
         return ResponseEntity.created(URI.create("/tickets/" + created.id()))
                 .body(created);
@@ -60,6 +63,7 @@ public class TicketController {
     })
     @GetMapping
     public ResponseEntity<PaginatedTicketResponse> list(@PageableDefault(size = 20) Pageable pageable) {
+        log.debug("GET /api/tickets: {}", pageable);
         return ResponseEntity.ok(ticketService.list(pageable));
     }
 
@@ -70,6 +74,7 @@ public class TicketController {
     })
     @GetMapping("/{ticketId}")
     public ResponseEntity<TicketResponse> get(@PathVariable Long ticketId) {
+        log.debug("GET /api/tickets/{}", ticketId);
         return ResponseEntity.ok(ticketService.get(ticketId));
     }
 
@@ -84,6 +89,7 @@ public class TicketController {
     public ResponseEntity<TicketResponse> update(
             @PathVariable Long ticketId,
             @Valid @RequestBody UpdateTicketRequest req) {
+        log.debug("PUT /api/tickets/{}: {}", ticketId, req);
         return ResponseEntity.ok(ticketService.update(ticketId, req));
     }
 
@@ -93,6 +99,7 @@ public class TicketController {
     })
     @DeleteMapping("/{ticketId}")
     public ResponseEntity<Void> delete(@PathVariable Long ticketId) {
+        log.debug("DELETE /api/tickets/{}", ticketId);
         ticketService.delete(ticketId);
         return ResponseEntity.noContent().build();
     }

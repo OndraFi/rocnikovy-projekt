@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
+import java.util.List;
 
 public final class TicketCommentDto {
     private TicketCommentDto() {}
@@ -17,6 +18,14 @@ public final class TicketCommentDto {
             String content,
             Instant createdAt,
             UserResponse author
+    ) {}
+
+    public record PaginatedTicketCommentResponse(
+            List<TicketCommentResponse> comments,
+            int page,
+            int size,
+            long totalElements,
+            int totalPages
     ) {}
 
     public record CreateTicketCommentRequest(

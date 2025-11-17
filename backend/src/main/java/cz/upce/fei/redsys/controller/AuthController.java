@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 })
 @RequestMapping(value = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Authentication", description = "User authentication and password management")
 public class AuthController {
 
@@ -37,6 +39,7 @@ public class AuthController {
     })
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest req) {
+        log.debug("POST /api/auth/register: {}", req);
         return ResponseEntity.ok(authService.register(req));
     }
 
@@ -47,6 +50,7 @@ public class AuthController {
     })
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody AuthDto.LoginRequest req) {
+        log.debug("POST /api/auth/login: {}", req);
         String token = authService.login(req);
         return ResponseEntity.ok(LoginResponse.builder().token(token).build());
     }
@@ -58,6 +62,7 @@ public class AuthController {
     })
     @PostMapping(value = "/request-password-reset", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PasswordResetCodeResponse> requestReset(@Valid @RequestBody PasswordResetRequest req) {
+        log.debug("POST /api/auth/request-password-reset: {}", req);
         String code = authService.requestPasswordReset(req);
         return ResponseEntity.ok(PasswordResetCodeResponse.builder().code(code).build());
     }
@@ -69,6 +74,7 @@ public class AuthController {
     })
     @PostMapping(value = "/reset-password", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponse> confirmReset(@Valid @RequestBody PasswordResetConfirmRequest req) {
+        log.debug("POST /api/auth/reset-password: {}", req);
         authService.confirmPasswordReset(req);
         return ResponseEntity.ok(MessageResponse.builder().message("Password reset successful").build());
     }
@@ -82,6 +88,7 @@ public class AuthController {
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping(value = "/change-password", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponse> changePassword(@Valid @RequestBody PasswordChangeRequest req) {
+        log.debug("POST /api/auth/change-password: {}", req);
         authService.changePassword(req);
         return ResponseEntity.ok(MessageResponse.builder().message("Password changed").build());
     }

@@ -2,6 +2,7 @@ package cz.upce.fei.redsys.controller;
 
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
+import cz.upce.fei.redsys.dto.TicketCommentDto.PaginatedTicketCommentResponse;
 import cz.upce.fei.redsys.dto.TicketCommentDto.CreateTicketCommentRequest;
 import cz.upce.fei.redsys.dto.TicketCommentDto.TicketCommentResponse;
 import cz.upce.fei.redsys.service.TicketCommentService;
@@ -14,7 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import java.net.URI;
 @RestController
 @RequestMapping(value = "/tickets/{ticketId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Ticket Comments", description = "Manage comments for tickets")
 @SecurityRequirement(name = "bearerAuth")
 @ApiResponses({
@@ -38,13 +40,14 @@ public class TicketCommentController {
 
     @Operation(summary = "List comments", description = "Get paginated comments for a ticket")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Comments found", content = @Content(schema = @Schema(implementation = TicketCommentResponse.class)))
+            @ApiResponse(responseCode = "200", description = "Comments found", content = @Content(schema = @Schema(implementation = PaginatedTicketCommentResponse.class)))
     })
     @GetMapping
-    public Page<TicketCommentResponse> list(
+    public ResponseEntity<PaginatedTicketCommentResponse> list(
             @PathVariable Long ticketId,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ticketCommentService.listComments(ticketId, pageable);
+        log.debug("GET /api/tickets/{}/comments: {}", ticketId, pageable);
+        return ResponseEntity.ok(ticketCommentService.listComments(ticketId, pageable));
     }
 
     @Operation(summary = "Create comment", description = "Add a comment to a ticket")
@@ -56,7 +59,7 @@ public class TicketCommentController {
     public ResponseEntity<TicketCommentResponse> create(
             @PathVariable Long ticketId,
             @Valid @RequestBody CreateTicketCommentRequest req) {
-
+        log.debug("POST /api/tickets/{}/comments: {}", ticketId, req);
         TicketCommentResponse created = ticketCommentService.createComment(ticketId, req);
         return ResponseEntity.created(URI.create("/tickets/" + ticketId + "/comments/" + created.number()))
                 .body(created);

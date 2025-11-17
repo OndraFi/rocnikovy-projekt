@@ -12,6 +12,7 @@ import cz.upce.fei.redsys.dto.TicketDto.UpdateTicketRequest;
 import cz.upce.fei.redsys.repository.TicketRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import static cz.upce.fei.redsys.dto.TicketDto.toTicketResponse;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class TicketService {
 
@@ -33,6 +35,7 @@ public class TicketService {
 
     @Transactional
     public TicketResponse create(CreateTicketRequest req) {
+        log.debug("Creating ticket with title '{}'", req.title());
         User assignee = (req.assigneeUsername() != null && !req.assigneeUsername().isBlank()) ?
                 userService.requireUserByIdentifier(req.assigneeUsername()) : null;
         Article article = articleService.requireArticleById(req.articleId());
@@ -46,15 +49,20 @@ public class TicketService {
                 .article(article)
                 .build();
 
-        return toTicketResponse(ticketRepository.save(ticket));
+        TicketResponse response = toTicketResponse(ticketRepository.save(ticket));
+        log.debug("Created ticket: {}", response);
+        return response;
     }
 
     public PaginatedTicketResponse list(Pageable pageable) {
+        log.debug("Listing tickets: {}", pageable);
         Page<Ticket> ticketPage = ticketRepository.findAll(pageable);
 
         List<TicketResponse> ticketResponses = ticketPage.getContent().stream()
                 .map(TicketDto::toTicketResponse)
                 .toList();
+
+        log.debug("Found {} tickets", ticketResponses.size());
 
         return new PaginatedTicketResponse(
                 ticketResponses,
@@ -66,13 +74,17 @@ public class TicketService {
     }
 
     public TicketResponse get(Long id) {
+        log.debug("Getting ticket with id {}", id);
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
-        return toTicketResponse(ticket);
+        TicketResponse response = toTicketResponse(ticket);
+        log.debug("Ticket found: {}", response);
+        return response;
     }
 
     @Transactional
     public TicketResponse update(Long id, UpdateTicketRequest req) {
+        log.debug("Updating ticket with id {}", id);
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
 
@@ -84,11 +96,14 @@ public class TicketService {
                 userService.requireUserByIdentifier(req.assigneeUsername()) : null;
         ticket.setAssignee(assignee);
 
-        return toTicketResponse(ticketRepository.save(ticket));
+        TicketResponse response = toTicketResponse(ticketRepository.save(ticket));
+        log.debug("Updated ticket: {}", response);
+        return response;
     }
 
     @Transactional
     public void delete(Long id) {
+        log.debug("Deleting ticket with id {}", id);
         if (!ticketRepository.existsById(id)) {
             throw new EntityNotFoundException("Ticket not found");
         }

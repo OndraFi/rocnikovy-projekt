@@ -7,6 +7,7 @@ import cz.upce.fei.redsys.dto.ArticleDto;
 import cz.upce.fei.redsys.dto.ArticleDto.*;
 import cz.upce.fei.redsys.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
@@ -25,6 +27,7 @@ public class ArticleService {
 
     @Transactional
     public ArticleResponse create(CreateArticleRequest req) {
+        log.debug("Creating article with title '{}'", req.title());
         User editor = userService.requireUserByIdentifier(req.editorUsername());
 
         Article article = Article.builder()
@@ -35,21 +38,29 @@ public class ArticleService {
                 .publishedAt(req.publishedAt())
                 .build();
 
-        return ArticleDto.toResponse(articleRepository.save(article));
+        ArticleResponse response = ArticleDto.toResponse(articleRepository.save(article));
+        log.debug("Article saved: {}", response);
+        return response;
     }
 
     @Transactional(readOnly = true)
     public ArticleResponse get(Long id) {
+        log.debug("Getting article with id {}", id);
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Article not found"));
-        return ArticleDto.toResponse(article);
+        ArticleResponse response = ArticleDto.toResponse(article);
+        log.debug("Article found: {}", response);
+        return response;
     }
 
     public PaginatedArticleResponse list(Pageable pageable) {
+        log.debug("Listing articles: {}", pageable);
         Page<Article> page = articleRepository.findAll(pageable);
         List<ArticleResponse> articles = page.getContent().stream()
                 .map(ArticleDto::toResponse)
                 .toList();
+
+        log.debug("Found {} articles", articles.size());
 
         return new PaginatedArticleResponse(
                 articles,
@@ -62,6 +73,7 @@ public class ArticleService {
 
     @Transactional
     public ArticleResponse update(Long id, UpdateArticleRequest req) {
+        log.debug("Updating article with id {}", id);
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Article not found"));
         User editor = userService.requireUserByIdentifier(req.editorUsername());
@@ -72,11 +84,14 @@ public class ArticleService {
 
         article.setEditor(editor);
 
-        return ArticleDto.toResponse(articleRepository.save(article));
+        ArticleResponse response = ArticleDto.toResponse(articleRepository.save(article));
+        log.debug("Updated article: {}", response);
+        return response;
     }
 
     @Transactional
     public void delete(Long id) {
+        log.debug("Deleting article with id {}", id);
         if (!articleRepository.existsById(id)) {
             throw new EntityNotFoundException("Article not found");
         }

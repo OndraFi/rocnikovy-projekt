@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import java.net.URI;
 @RestController
 @RequestMapping(value = "/api/articles", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Articles", description = "Manage articles")
 @SecurityRequirement(name = "bearerAuth")
 @ApiResponses({
@@ -45,6 +47,7 @@ public class ArticleController {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ArticleResponse> create(@Valid @RequestBody CreateArticleRequest req) {
+        log.debug("POST /api/articles: {}", req);
         ArticleResponse created = articleService.create(req);
         return ResponseEntity.created(URI.create("/articles/" + created.id()))
                 .body(created);
@@ -57,6 +60,7 @@ public class ArticleController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> get(@PathVariable Long id) {
+        log.debug("GET /api/articles/{}", id);
         return ResponseEntity.ok(articleService.get(id));
     }
 
@@ -67,6 +71,7 @@ public class ArticleController {
     })
     @GetMapping
     public ResponseEntity<PaginatedArticleResponse> list(@PageableDefault(size = 20) Pageable pageable) {
+        log.debug("GET /api/articles: {}", pageable);
         return ResponseEntity.ok(articleService.list(pageable));
     }
 
@@ -81,6 +86,7 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateArticleRequest req) {
+        log.debug("PUT /api/articles/{}: {}", id, req);
         return ResponseEntity.ok(articleService.update(id, req));
     }
 
@@ -90,6 +96,7 @@ public class ArticleController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.debug("DELETE /api/articles/{}", id);
         articleService.delete(id);
         return ResponseEntity.noContent().build();
     }

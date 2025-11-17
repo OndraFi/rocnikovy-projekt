@@ -44,6 +44,7 @@ public class GlobalExceptionHandler {
                 .map(fe -> messageSource.getMessage(fe, LocaleContextHolder.getLocale()))
                 .toList();
 
+        log.warn("Validation failed for request {}: {}", path, ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", path, errors);
     }
 
@@ -62,6 +63,7 @@ public class GlobalExceptionHandler {
                 })
                 .toList();
 
+        log.warn("Constraint violation for request {}: {}", path, ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", path, errors);
     }
 
@@ -91,21 +93,25 @@ public class GlobalExceptionHandler {
             }
         }
 
+        log.warn("Malformed JSON or invalid type at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request or invalid data type.", request.getRequestURI());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+        log.warn("Authentication failed for request {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password", request.getRequestURI());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        log.warn("Access denied at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+        log.warn("Entity not found at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
 
@@ -121,6 +127,7 @@ public class GlobalExceptionHandler {
         String message = String.format("Method %s is not supported. Supported methods: %s",
                 ex.getMethod(), supportedMethods);
 
+        log.warn("Method not supported at {}: {}", request.getRequestURI(), message);
         return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, message, request.getRequestURI());
     }
 
@@ -136,11 +143,13 @@ public class GlobalExceptionHandler {
         String message = String.format("Requested media type is not acceptable. Supported response types: %s",
                 supportedTypes);
 
+        log.warn("Media type not acceptable at {}: {}", request.getRequestURI(), message);
         return buildResponse(HttpStatus.NOT_ACCEPTABLE, message, request.getRequestURI());
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
+        log.warn("Illegal state at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
     }
 
@@ -156,11 +165,13 @@ public class GlobalExceptionHandler {
         String message = String.format("Content type %s is not supported. Supported types: %s",
                 ex.getContentType(), supportedTypes);
 
+        log.warn("Media type not supported at {}: {}", request.getRequestURI(), message);
         return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message, request.getRequestURI());
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleWorkflow(ValidationException ex, HttpServletRequest request) {
+        log.warn("Workflow validation failed at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request.getRequestURI());
     }
 

@@ -3,6 +3,7 @@ package cz.upce.fei.redsys.service;
 import cz.upce.fei.redsys.domain.User;
 import cz.upce.fei.redsys.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
 
@@ -21,10 +23,12 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.debug("Authenticating '{}'", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (!user.isActive()) {
+            log.warn("User '{}' is inactive", username);
             throw new UsernameNotFoundException("User is inactive");
         }
 
@@ -32,6 +36,7 @@ public class UserService implements UserDetailsService {
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
         );
 
+        log.debug("Authenticated user '{}' as {}", user.getUsername(), user.getRole().name());
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
@@ -48,12 +53,14 @@ public class UserService implements UserDetailsService {
     }
 
     public Optional<User> findByIdentifier(String identifier) {
+        log.debug("Finding user by identifier '{}'", identifier);
         if (identifier.contains("@")) return findByEmail(identifier);
         return findByUsername(identifier);
     }
 
     @Transactional
     public User createUser(String username, String fullName, String email, String hashedPassword) {
+        log.debug("Creating user with username '{}'", username);
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalStateException("Username already taken");
         }
@@ -67,7 +74,10 @@ public class UserService implements UserDetailsService {
                 .email(email)
                 .password(hashedPassword)
                 .build();
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+        log.info("User {} created with ID {}", savedUser.getUsername(), savedUser.getId());
+        return savedUser;
     }
 
     @Transactional
