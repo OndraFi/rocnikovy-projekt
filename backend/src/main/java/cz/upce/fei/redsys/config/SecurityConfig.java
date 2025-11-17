@@ -9,6 +9,7 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +22,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 @Slf4j
 @Configuration
 @EnableWebSecurity
@@ -28,30 +33,45 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
+    private final Environment env;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                        "/api/auth/register",
-                        "/api/auth/login",
-                        "/api/auth/request-password-reset",
-                        "/api/auth/reset-password",
-                        "/h2-console/**",
-                        "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(auth -> {
+                    var permitted = List.of(
+                            "/api/auth/register",
+                            "/api/auth/login",
+                            "/api/auth/request-password-reset",
+                            "/api/auth/reset-password",
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**"
+                    );
+
+                    // Add H2 console only if the dev profile is active
+                    String[] permittedArray = isDev
+                            ? Stream.concat(permitted.stream(), Stream.of("/h2-console/**"))
+                            .toArray(String[]::new)
+                            : permitted.toArray(String[]::new);
+
+                    auth.requestMatchers(permittedArray)
+                            .permitAll()
+                            .anyRequest().authenticated();
+                })
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint())
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> {
-                    headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable); // for h2 console
+                    if (isDev) {
+                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable); // for H2 console
+                    }
                     headers.cacheControl(cache -> {});
                 });
 
