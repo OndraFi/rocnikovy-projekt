@@ -28,7 +28,9 @@ public class ArticleService {
     @Transactional
     public ArticleResponse create(CreateArticleRequest req) {
         log.debug("Creating article with title '{}'", req.title());
-        User editor = userService.requireUserByIdentifier(req.editorUsername());
+        User editor = req.editorUsername() != null && !req.editorUsername().isBlank()
+                ? userService.requireUserByIdentifier(req.editorUsername())
+                : null;
 
         Article article = Article.builder()
                 .title(req.title())
@@ -76,9 +78,11 @@ public class ArticleService {
         log.debug("Updating article with id {}", id);
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Article not found"));
-        User editor = userService.requireUserByIdentifier(req.editorUsername());
+        User editor = req.editorUsername() != null && !req.editorUsername().isBlank()
+                ? userService.requireUserByIdentifier(req.editorUsername())
+                : null;
 
-        if (req.title() != null) article.setTitle(req.title());
+        if (req.title() != null && !req.title().isBlank()) article.setTitle(req.title());
         if (req.articleState() != null) article.setArticleState(req.articleState());
         if (req.publishedAt() != null) article.setPublishedAt(req.publishedAt());
 
