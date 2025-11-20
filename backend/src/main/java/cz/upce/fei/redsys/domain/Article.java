@@ -22,6 +22,10 @@ public class Article {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Version // Optimistic locking
+    // Used by Hibernate to prevent lost updates when multiple users edit the same entity simultaneously
+    private Long version;
+
     @Column(nullable = false)
     private String title;
 

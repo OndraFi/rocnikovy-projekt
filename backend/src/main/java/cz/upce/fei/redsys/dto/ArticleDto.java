@@ -3,14 +3,19 @@ package cz.upce.fei.redsys.dto;
 import cz.upce.fei.redsys.domain.Article;
 import cz.upce.fei.redsys.domain.ArticleState;
 import cz.upce.fei.redsys.dto.UserDto.UserResponse;
+import cz.upce.fei.redsys.dto.CategoryDto.CategoryResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class ArticleDto {
+public final class ArticleDto {
+    private ArticleDto() {}
 
     public record CreateArticleRequest(
             @NotBlank(message = "{common.required}")
@@ -22,6 +27,12 @@ public class ArticleDto {
 
             @NotNull(message = "{common.required}")
             Instant publishedAt,
+
+            @NotBlank(message = "{common.required}")
+            String content,
+
+            @NotNull(message = "{common.required}")
+            Set<Long> categoryIds,
 
             String editorUsername
     ) {}
@@ -37,16 +48,37 @@ public class ArticleDto {
             @NotNull(message = "{common.required}")
             Instant publishedAt,
 
+            @NotNull(message = "{common.required}")
+            String content,
+
+            @NotNull(message = "{common.required}")
+            Set<Long> categoryIds,
+
             String editorUsername
     ) {}
 
+    @Builder
     public record ArticleResponse(
             Long id,
             String title,
             ArticleState articleState,
             Instant publishedAt,
             UserResponse author,
-            UserResponse editor
+            UserResponse editor,
+            Set<CategoryResponse> categories
+    ) {}
+
+    @Builder
+    public record ArticleDetailResponse(
+            Long id,
+            String title,
+            ArticleState articleState,
+            Instant publishedAt,
+            String content,
+            Integer currentVersion,
+            UserResponse author,
+            UserResponse editor,
+            Set<CategoryResponse> categories
     ) {}
 
     public record PaginatedArticleResponse(
@@ -58,13 +90,32 @@ public class ArticleDto {
     ) {}
 
     public static ArticleResponse toResponse(Article article) {
-        return new ArticleResponse(
-                article.getId(),
-                article.getTitle(),
-                article.getArticleState(),
-                article.getPublishedAt(),
-                article.getAuthor() != null ? UserDto.toUserResponse(article.getAuthor()) : null,
-                article.getEditor() != null ? UserDto.toUserResponse(article.getEditor()) : null
-        );
+        return ArticleResponse.builder()
+                .id(article.getId())
+                .title(article.getTitle())
+                .articleState(article.getArticleState())
+                .publishedAt(article.getPublishedAt())
+                .author(article.getAuthor() != null ? UserDto.toUserResponse(article.getAuthor()) : null)
+                .editor(article.getEditor() != null ? UserDto.toUserResponse(article.getEditor()) : null)
+                .categories(article.getCategories().stream()
+                        .map(CategoryDto::toResponse)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    public static ArticleDetailResponse toDetailResponse(Article article, String content, Integer versionNumber) {
+        return ArticleDetailResponse.builder()
+                .id(article.getId())
+                .title(article.getTitle())
+                .articleState(article.getArticleState())
+                .publishedAt(article.getPublishedAt())
+                .content(content)
+                .currentVersion(versionNumber)
+                .author(article.getAuthor() != null ? UserDto.toUserResponse(article.getAuthor()) : null)
+                .editor(article.getEditor() != null ? UserDto.toUserResponse(article.getEditor()) : null)
+                .categories(article.getCategories().stream()
+                        .map(CategoryDto::toResponse)
+                        .collect(Collectors.toSet()))
+                .build();
     }
 }

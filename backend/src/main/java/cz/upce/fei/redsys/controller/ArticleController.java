@@ -38,17 +38,17 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @Operation(summary = "Create article", description = "Create a new article. Title is required; state defaults to DRAFT")
+    @Operation(summary = "Create article", description = "Create a new article.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Article created",
-                    content = @Content(schema = @Schema(implementation = ArticleResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ArticleResponse> create(@Valid @RequestBody CreateArticleRequest req) {
+    public ResponseEntity<ArticleDetailResponse> create(@Valid @RequestBody CreateArticleRequest req) {
         log.debug("POST /api/articles: {}", req);
-        ArticleResponse created = articleService.create(req);
+        ArticleDetailResponse created = articleService.create(req);
         return ResponseEntity.created(URI.create("/articles/" + created.id()))
                 .body(created);
     }
@@ -56,10 +56,10 @@ public class ArticleController {
     @Operation(summary = "Get article", description = "Get an article by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Article found",
-                    content = @Content(schema = @Schema(implementation = ArticleResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ArticleResponse> get(@PathVariable Long id) {
+    public ResponseEntity<ArticleDetailResponse> get(@PathVariable Long id) {
         log.debug("GET /api/articles/{}", id);
         return ResponseEntity.ok(articleService.get(id));
     }
@@ -78,12 +78,12 @@ public class ArticleController {
     @Operation(summary = "Update article", description = "Update article fields")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Article updated",
-                    content = @Content(schema = @Schema(implementation = ArticleResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ArticleResponse> update(
+    public ResponseEntity<ArticleDetailResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateArticleRequest req) {
         log.debug("PUT /api/articles/{}: {}", id, req);
