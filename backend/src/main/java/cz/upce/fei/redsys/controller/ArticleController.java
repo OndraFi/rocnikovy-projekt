@@ -3,6 +3,9 @@ package cz.upce.fei.redsys.controller;
 import cz.upce.fei.redsys.dto.ArticleDto.*;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
+import cz.upce.fei.redsys.security.annotation.ArticlePermissions.CanCreateArticle;
+import cz.upce.fei.redsys.security.annotation.ArticlePermissions.CanDeleteArticle;
+import cz.upce.fei.redsys.security.annotation.ArticlePermissions.CanEditArticle;
 import cz.upce.fei.redsys.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,6 +34,8 @@ import java.net.URI;
 @ApiResponses({
         @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or expired token",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Article not found",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 })
@@ -38,7 +43,7 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @Operation(summary = "Create article", description = "Create a new article.")
+    @Operation(summary = "Create article", description = "Create a new article")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Article created",
                     content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class))),
@@ -46,6 +51,7 @@ public class ArticleController {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CanCreateArticle
     public ResponseEntity<ArticleDetailResponse> create(@Valid @RequestBody CreateArticleRequest req) {
         log.debug("POST /api/articles: {}", req);
         ArticleDetailResponse created = articleService.create(req);
@@ -83,6 +89,7 @@ public class ArticleController {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CanEditArticle
     public ResponseEntity<ArticleDetailResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateArticleRequest req) {
@@ -95,6 +102,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "204", description = "Article deleted")
     })
     @DeleteMapping("/{id}")
+    @CanDeleteArticle
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.debug("DELETE /api/articles/{}", id);
         articleService.delete(id);

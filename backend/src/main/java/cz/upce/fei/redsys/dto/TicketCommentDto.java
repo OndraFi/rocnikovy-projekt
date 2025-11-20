@@ -17,6 +17,7 @@ public final class TicketCommentDto {
             Integer number,
             String content,
             Instant createdAt,
+            Instant updatedAt,
             UserResponse author
     ) {}
 
@@ -34,11 +35,18 @@ public final class TicketCommentDto {
             String content
     ) {}
 
+    public record UpdateTicketCommentRequest(
+            @NotBlank(message = "{common.required}")
+            @Size(max = 2000, message = "{ticket.comment.size}")
+            String content
+    ) {}
+
     public static TicketCommentResponse toResponse(TicketComment comment) {
         return TicketCommentResponse.builder()
                 .number(comment.getTicketCommentNumber())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .author(UserDto.toUserResponse(comment.getAuthor()))
                 .build();
     }

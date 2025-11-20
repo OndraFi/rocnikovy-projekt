@@ -3,6 +3,7 @@ package cz.upce.fei.redsys.controller;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
+import cz.upce.fei.redsys.service.WorkflowService.WorkflowException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -187,6 +188,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleWorkflow(ValidationException ex, HttpServletRequest request) {
         log.warn("Workflow validation failed at {}: {}", request.getRequestURI(), ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(WorkflowException.class)
+    public ResponseEntity<ErrorResponse> handleWorkflowException(WorkflowException ex, HttpServletRequest request) {
+        log.warn("Workflow error at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request.getRequestURI());
     }
 

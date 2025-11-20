@@ -132,7 +132,6 @@ public class TicketServiceTest {
         UpdateTicketRequest request = new UpdateTicketRequest(
                 "Updated Title",
                 "Updated Description",
-                TicketState.IN_PROGRESS,
                 "john.doe"
         );
 
@@ -145,7 +144,6 @@ public class TicketServiceTest {
         verify(ticketRepository, times(1)).save(argThat(ticket ->
                 ticket.getTitle().equals("Updated Title") &&
                         ticket.getDescription().equals("Updated Description") &&
-                        ticket.getState() == TicketState.IN_PROGRESS &&
                         ticket.getAssignee().getUsername().equals("john.doe")
         ));
     }

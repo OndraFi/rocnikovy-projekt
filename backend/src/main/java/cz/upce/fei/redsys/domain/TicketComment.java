@@ -36,6 +36,14 @@ public class TicketComment {
     @Builder.Default
     private Instant createdAt = Instant.now();
 
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
     @Column(name = "ticket_comment_number", nullable = false)
     private Integer ticketCommentNumber;
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
+    }
 }

@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.*;
 @ApiResponses({
         @ApiResponse(responseCode = "401", description = "Unauthorized",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Article or version not found",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 })
@@ -66,7 +68,6 @@ public class ArticleVersionController {
         log.debug("GET /api/articles/{}/versions/{}", articleId, versionNumber);
         Article article = articleService.requireArticleById(articleId);
         ArticleVersion version = articleVersionService.getVersion(article, versionNumber);
-
         return ResponseEntity.ok(ArticleVersionDto.toResponse(version, true));
     }
 }

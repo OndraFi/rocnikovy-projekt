@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +73,7 @@ public class ArticleVersionService {
 
     @Transactional(readOnly = true)
     public ArticleVersion getVersion(Article article, Integer versionNumber) {
+        enforceViewPermission(article);
         log.debug("Getting version {} for article {}", versionNumber, article.getId());
         return versionRepository.findByArticleAndVersionNumber(article, versionNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Version " + versionNumber + " not found for article " + article.getId()));
@@ -79,6 +81,7 @@ public class ArticleVersionService {
 
     @Transactional(readOnly = true)
     public PaginatedArticleVersionResponse listVersions(Article article, Pageable pageable) {
+        enforceViewPermission(article);
         log.debug("Listing versions for article {}: {}", article.getId(), pageable);
         Page<ArticleVersion> page = versionRepository.findAllByArticleOrderByVersionNumberDesc(article, pageable);
 
@@ -95,5 +98,18 @@ public class ArticleVersionService {
                 page.getTotalElements(),
                 page.getTotalPages()
         );
+    }
+
+    private void enforceViewPermission(Article article) {
+        User currentUser = authService.currentUser();
+        switch (currentUser.getRole()) {
+            case ADMIN, CHIEF_EDITOR, REVIEWER -> {}
+            case EDITOR -> {
+                if (article.getEditor() == null || !article.getEditor().getId().equals(currentUser.getId())) {
+                    throw new AccessDeniedException("You cannot access the versions of this article");
+                }
+            }
+            default -> throw new AccessDeniedException("You cannot access the versions of this article");
+        }
     }
 }

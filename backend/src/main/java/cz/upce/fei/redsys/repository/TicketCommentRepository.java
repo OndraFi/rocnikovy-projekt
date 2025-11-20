@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface TicketCommentRepository extends JpaRepository<TicketComment, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -17,4 +19,5 @@ public interface TicketCommentRepository extends JpaRepository<TicketComment, Lo
     Integer findMaxTicketCommentNumberByTicket(@Param("ticket") Ticket ticket);
 
     Page<TicketComment> findAllByTicketOrderByTicketCommentNumberDesc(Ticket ticket, Pageable pageable);
+    Optional<TicketComment> findByTicketAndTicketCommentNumber(Ticket ticket, Integer ticketCommentNumber);
 }

@@ -90,7 +90,6 @@ public class TicketService {
 
         ticket.setTitle(req.title());
         ticket.setDescription(req.description());
-        ticket.setState(req.state());
 
         User assignee = (req.assigneeUsername() != null && !req.assigneeUsername().isBlank()) ?
                 userService.requireUserByIdentifier(req.assigneeUsername()) : null;

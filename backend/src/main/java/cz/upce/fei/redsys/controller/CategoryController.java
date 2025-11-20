@@ -6,6 +6,7 @@ import cz.upce.fei.redsys.dto.CategoryDto.PaginatedCategoryResponse;
 import cz.upce.fei.redsys.dto.CategoryDto.UpdateCategoryRequest;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
+import cz.upce.fei.redsys.security.annotation.CategoryPermissions.CanManageCategory;
 import cz.upce.fei.redsys.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,10 +48,13 @@ public class CategoryController {
                     content = @Content(schema = @Schema(implementation = CategoryResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "Category name already exists",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CanManageCategory
     public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CreateCategoryRequest req) {
         log.debug("POST /api/categories: {}", req);
         CategoryResponse created = categoryService.create(req);
@@ -86,10 +90,13 @@ public class CategoryController {
                     content = @Content(schema = @Schema(implementation = CategoryResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "Category name already exists",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CanManageCategory
     public ResponseEntity<CategoryResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateCategoryRequest req) {
@@ -99,9 +106,12 @@ public class CategoryController {
 
     @Operation(summary = "Delete category", description = "Delete a category")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Category deleted")
+            @ApiResponse(responseCode = "204", description = "Category deleted"),
+            @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @DeleteMapping("/{id}")
+    @CanManageCategory
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.debug("DELETE /api/categories/{}", id);
         categoryService.delete(id);

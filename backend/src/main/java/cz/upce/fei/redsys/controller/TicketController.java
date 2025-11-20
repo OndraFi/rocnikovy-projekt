@@ -2,11 +2,16 @@ package cz.upce.fei.redsys.controller;
 
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
+import cz.upce.fei.redsys.dto.TicketDto.TransitionTicketRequest;
 import cz.upce.fei.redsys.dto.TicketDto.CreateTicketRequest;
 import cz.upce.fei.redsys.dto.TicketDto.TicketResponse;
 import cz.upce.fei.redsys.dto.TicketDto.PaginatedTicketResponse;
 import cz.upce.fei.redsys.dto.TicketDto.UpdateTicketRequest;
+import cz.upce.fei.redsys.security.annotation.TicketPermissions.CanManageTicket;
+import cz.upce.fei.redsys.security.annotation.TicketPermissions.CanViewTicket;
+import cz.upce.fei.redsys.security.annotation.TicketPermissions.CanTransitionTicketState;
 import cz.upce.fei.redsys.service.TicketService;
+import cz.upce.fei.redsys.service.WorkflowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,14 +39,17 @@ import java.net.URI;
 @ApiResponses({
         @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or expired token",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Ticket not found",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 })
 public class TicketController {
 
     private final TicketService ticketService;
+    private final WorkflowService workflowService;
 
-    @Operation(summary = "Create ticket", description = "Create a new ticket. Title, assignee, author, and article are required; state defaults to OPEN")
+    @Operation(summary = "Create ticket", description = "Create a new ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
                     content = @Content(schema = @Schema(implementation = TicketResponse.class))),
@@ -49,6 +57,7 @@ public class TicketController {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CanManageTicket
     public ResponseEntity<TicketResponse> create(@Valid @RequestBody CreateTicketRequest req) {
         log.debug("POST /api/tickets: {}", req);
         TicketResponse created = ticketService.create(req);
@@ -62,6 +71,7 @@ public class TicketController {
                     content = @Content(schema = @Schema(implementation = PaginatedTicketResponse.class)))
     })
     @GetMapping
+    @CanViewTicket
     public ResponseEntity<PaginatedTicketResponse> list(@PageableDefault(size = 20) Pageable pageable) {
         log.debug("GET /api/tickets: {}", pageable);
         return ResponseEntity.ok(ticketService.list(pageable));
@@ -73,6 +83,7 @@ public class TicketController {
                     content = @Content(schema = @Schema(implementation = TicketResponse.class)))
     })
     @GetMapping("/{ticketId}")
+    @CanViewTicket
     public ResponseEntity<TicketResponse> get(@PathVariable Long ticketId) {
         log.debug("GET /api/tickets/{}", ticketId);
         return ResponseEntity.ok(ticketService.get(ticketId));
@@ -86,6 +97,7 @@ public class TicketController {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PutMapping(value = "/{ticketId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CanManageTicket
     public ResponseEntity<TicketResponse> update(
             @PathVariable Long ticketId,
             @Valid @RequestBody UpdateTicketRequest req) {
@@ -93,11 +105,31 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.update(ticketId, req));
     }
 
+    @Operation(summary = "Transition ticket state", description = "Change the state of a ticket")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Ticket state transitioned",
+                    content = @Content(schema = @Schema(implementation = TicketResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "422", description = "Invalid state transition",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PatchMapping("/{ticketId}/state")
+    @CanTransitionTicketState
+    public ResponseEntity<TicketResponse> changeState(
+            @PathVariable Long ticketId,
+            @Valid @RequestBody TransitionTicketRequest request) {
+
+        log.debug("POST /api/tickets/{}/state: {}", ticketId, request);
+        return ResponseEntity.ok(workflowService.transition(ticketId, request.targetState(), request.comment()));
+    }
+
     @Operation(summary = "Delete ticket", description = "Delete a ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket deleted")
     })
     @DeleteMapping("/{ticketId}")
+    @CanManageTicket
     public ResponseEntity<Void> delete(@PathVariable Long ticketId) {
         log.debug("DELETE /api/tickets/{}", ticketId);
         ticketService.delete(ticketId);

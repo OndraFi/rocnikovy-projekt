@@ -60,10 +60,15 @@ public final class TicketDto {
             @Size(max = 2000, message = "{ticket.description.size}")
             String description,
 
-            @NotNull(message = "{common.required}")
-            TicketState state,
-
             String assigneeUsername
+    ) {}
+
+    public record TransitionTicketRequest(
+            @NotNull(message = "{common.required}")
+            TicketState targetState,
+
+            @Size(max = 2000, message = "{ticket.comment.size}")
+            String comment
     ) {}
 
     public static TicketResponse toTicketResponse(Ticket ticket) {
