@@ -67,6 +67,7 @@ public class SecurityConfig {
                             : permitted.toArray(String[]::new);
 
                     auth.requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll();
                     auth.requestMatchers(permittedArray)
                             .permitAll()
                             .anyRequest().authenticated();
