@@ -43,13 +43,14 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @Operation(summary = "Create article", description = "Create a new article")
+    @Operation(summary = "Create article", description = "Create a new article", operationId = "createArticle")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Article created",
                     content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CanCreateArticle
     public ResponseEntity<ArticleDetailResponse> create(@Valid @RequestBody CreateArticleRequest req) {
@@ -59,7 +60,7 @@ public class ArticleController {
                 .body(created);
     }
 
-    @Operation(summary = "Get article", description = "Get an article by ID")
+    @Operation(summary = "Get article", description = "Get an article by ID", operationId = "getArticle")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Article found",
                     content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class)))
@@ -70,7 +71,7 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.get(id));
     }
 
-    @Operation(summary = "List articles", description = "List articles with pagination")
+    @Operation(summary = "List articles", description = "List articles with pagination", operationId = "listArticles")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Articles found",
                     content = @Content(schema = @Schema(implementation = PaginatedArticleResponse.class)))
@@ -81,7 +82,7 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.list(pageable));
     }
 
-    @Operation(summary = "Update article", description = "Update article fields")
+    @Operation(summary = "Update article", description = "Update article fields", operationId = "updateArticle")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Article updated",
                     content = @Content(schema = @Schema(implementation = ArticleDetailResponse.class))),
@@ -97,7 +98,7 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.update(id, req));
     }
 
-    @Operation(summary = "Delete article", description = "Delete an article")
+    @Operation(summary = "Delete article", description = "Delete an article", operationId = "deleteArticle")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Article deleted")
     })

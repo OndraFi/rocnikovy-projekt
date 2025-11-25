@@ -49,7 +49,7 @@ public class TicketController {
     private final TicketService ticketService;
     private final WorkflowService workflowService;
 
-    @Operation(summary = "Create ticket", description = "Create a new ticket")
+    @Operation(summary = "Create ticket", description = "Create a new ticket", operationId = "createTicket")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
                     content = @Content(schema = @Schema(implementation = TicketResponse.class))),
@@ -65,7 +65,7 @@ public class TicketController {
                 .body(created);
     }
 
-    @Operation(summary = "List tickets", description = "List tickets with pagination")
+    @Operation(summary = "List tickets", description = "List tickets with pagination", operationId = "listTickets")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tickets found",
                     content = @Content(schema = @Schema(implementation = PaginatedTicketResponse.class)))
@@ -77,7 +77,7 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.list(pageable));
     }
 
-    @Operation(summary = "Get ticket", description = "Get a ticket by ID")
+    @Operation(summary = "Get ticket", description = "Get a ticket by ID", operationId = "getTicket")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found",
                     content = @Content(schema = @Schema(implementation = TicketResponse.class)))
@@ -89,7 +89,7 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.get(ticketId));
     }
 
-    @Operation(summary = "Update ticket", description = "Update ticket fields")
+    @Operation(summary = "Update ticket", description = "Update ticket fields", operationId = "updateTicket")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket updated",
                     content = @Content(schema = @Schema(implementation = TicketResponse.class))),
@@ -105,7 +105,7 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.update(ticketId, req));
     }
 
-    @Operation(summary = "Transition ticket state", description = "Change the state of a ticket")
+    @Operation(summary = "Transition ticket state", description = "Change the state of a ticket", operationId = "changeTicketState")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket state transitioned",
                     content = @Content(schema = @Schema(implementation = TicketResponse.class))),
@@ -124,7 +124,7 @@ public class TicketController {
         return ResponseEntity.ok(workflowService.transition(ticketId, request.targetState(), request.comment()));
     }
 
-    @Operation(summary = "Delete ticket", description = "Delete a ticket")
+    @Operation(summary = "Delete ticket", description = "Delete a ticket", operationId = "deleteTicket")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket deleted")
     })

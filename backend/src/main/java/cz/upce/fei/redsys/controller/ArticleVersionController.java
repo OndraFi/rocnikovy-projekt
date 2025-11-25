@@ -42,7 +42,7 @@ public class ArticleVersionController {
     private final ArticleService articleService;
     private final ArticleVersionService articleVersionService;
 
-    @Operation(summary = "List versions", description = "Get paginated history of versions for an article (without content).")
+    @Operation(summary = "List versions", description = "Get paginated history of versions for an article (without content).", operationId = "listArticleVersions")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Versions found",
                     content = @Content(schema = @Schema(implementation = PaginatedArticleVersionResponse.class)))
@@ -56,7 +56,7 @@ public class ArticleVersionController {
         return ResponseEntity.ok(articleVersionService.listVersions(article, pageable));
     }
 
-    @Operation(summary = "Get version", description = "Get a specific version of an article with content.")
+    @Operation(summary = "Get version", description = "Get a specific version of an article with content.", operationId = "getArticleVersion")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Version found",
                     content = @Content(schema = @Schema(implementation = ArticleVersionResponse.class)))
