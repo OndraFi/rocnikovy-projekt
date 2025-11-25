@@ -1,28 +1,28 @@
 package cz.upce.fei.redsys.components;
 
-import ch.qos.logback.classic.encoder.JsonEncoder;
-import cz.upce.fei.redsys.domain.Category;
-import cz.upce.fei.redsys.domain.User;
-import cz.upce.fei.redsys.domain.UserRole;
+import cz.upce.fei.redsys.domain.*;
+import cz.upce.fei.redsys.repository.ArticleRepository;
 import cz.upce.fei.redsys.repository.CategoryRepository;
 import cz.upce.fei.redsys.repository.UserRepository;
-import cz.upce.fei.redsys.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
-    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final CategoryRepository categoryRepository;
+    private final ArticleRepository articleRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -57,6 +57,33 @@ public class DataInitializer implements CommandLineRunner {
         if(!categoryRepository.existsByName(c2.getName())) {
             log.info("Creating category {}", c2.getName());
             categoryRepository.save(c2);
+        }
+        Set<Category> categories = new HashSet<>();
+        categories.add(c1);
+        categories.add(c2);
+
+        Article article1 = new Article();
+        article1.setTitle("Football News");
+        article1.setArticleState(ArticleState.PUBLISHED);
+        article1.setCategories(categories);
+        article1.setAuthor(user);
+        article1.setEditor(null);
+        article1.setPublishedAt(Instant.now());
+        if(!articleRepository.existsById(1L)) { // pokud není žádný článek, vytvoříme jeden
+            log.info("Creating articel {}", article1.getTitle());
+            articleRepository.save(article1);
+        }
+
+        Article article2 = new Article();
+        article2.setTitle("Ekonomy News");
+        article2.setArticleState(ArticleState.PUBLISHED);
+        article2.setCategories(categories);
+        article2.setAuthor(user);
+        article2.setEditor(null);
+        article2.setPublishedAt(Instant.now());
+        if(!articleRepository.existsById(2L)) { // pokud není žádný článek, vytvoříme jeden
+            log.info("Creating articel {}", article2.getTitle());
+            articleRepository.save(article2);
         }
     }
 
