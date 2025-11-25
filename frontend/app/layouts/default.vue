@@ -1,9 +1,9 @@
 <template>
   <div>
     <layout-default-navbar/>
-    <main>
+    <UMain>
       <slot/>
-    </main>
+    </UMain>
     <layout-default-footer/>
   </div>
 </template>

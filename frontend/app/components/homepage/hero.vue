@@ -2,6 +2,11 @@
   <section class="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
     <div class="max-w-7xl mx-auto">
 
+<!--      <div>-->
+<!--        <h1 class="font-black text-7xl ">Deník Online</h1>-->
+<!--        <p class="font-bold text-xl mb-12 mt-3">Prohlídněte si nejnovější články</p>-->
+<!--      </div>-->
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         <!-- Main Article -->
@@ -20,9 +25,9 @@
               </div>
             </div>
 
-            <h1 class="text-3xl sm:text-4xl mb-2 leading-tight">
+            <h2 class="text-3xl sm:text-4xl mb-2 leading-tight">
               {{ mainArticle.title }}
-            </h1>
+            </h2>
 
             <p class="text-gray-100 text-sm">
               {{ mainArticle.author?.fullName || mainArticle.author?.username }}
@@ -141,7 +146,7 @@ export default {
       // podle JSONu máš teď "categories": {}, ale do budoucna to asi bude list
       const anyArticle = article as any;
       if (Array.isArray(anyArticle.categories) && anyArticle.categories.length > 0) {
-        return anyArticle.categories[0]?.name || 'Článek';
+        return anyArticle.categories[0]?.value.name || 'Článek';
       }
       return 'Článek';
     }
