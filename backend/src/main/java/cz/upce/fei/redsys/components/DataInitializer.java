@@ -74,16 +74,20 @@ public class DataInitializer implements CommandLineRunner {
             articleRepository.save(article1);
         }
 
-        Article article2 = new Article();
-        article2.setTitle("Ekonomy News");
-        article2.setArticleState(ArticleState.PUBLISHED);
-        article2.setCategories(categories);
-        article2.setAuthor(user);
-        article2.setEditor(null);
-        article2.setPublishedAt(Instant.now());
-        if(!articleRepository.existsById(2L)) { // pokud není žádný článek, vytvoříme jeden
-            log.info("Creating articel {}", article2.getTitle());
-            articleRepository.save(article2);
+
+        if(!articleRepository.existsById(2L) || articleRepository.existsById(6L)) { // pokud není žádný článek, vytvoříme jeden
+            for(int i=0; i<5; i++) {
+                Article article = new Article();
+                article.setTitle("Ekonomy News");
+                article.setArticleState(ArticleState.PUBLISHED);
+                article.setCategories(categories);
+                article.setAuthor(user);
+                article.setEditor(null);
+                article.setPublishedAt(Instant.now());
+                log.info("Creating articel {}", article.getTitle());
+                article.setTitle("Ekonomy News " + (i+1));
+                articleRepository.save(article);
+            }
         }
     }
 
