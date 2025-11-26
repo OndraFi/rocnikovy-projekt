@@ -4,10 +4,10 @@ All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**createTicketComment**](TicketCommentsApi.md#createticketcommentoperation) | **POST** /tickets/{ticketId}/comments | Create comment |
-| [**deleteTicketComment**](TicketCommentsApi.md#deleteticketcomment) | **DELETE** /tickets/{ticketId}/comments/{commentNumber} | Delete comment |
-| [**listTicketComments**](TicketCommentsApi.md#listticketcomments) | **GET** /tickets/{ticketId}/comments | List comments |
-| [**updateTicketComment**](TicketCommentsApi.md#updateticketcommentoperation) | **PUT** /tickets/{ticketId}/comments/{commentNumber} | Update comment |
+| [**createTicketComment**](TicketCommentsApi.md#createticketcommentoperation) | **POST** /api/tickets/{ticketId}/comments | Create comment |
+| [**deleteTicketComment**](TicketCommentsApi.md#deleteticketcomment) | **DELETE** /api/tickets/{ticketId}/comments/{commentNumber} | Delete comment |
+| [**listTicketComments**](TicketCommentsApi.md#listticketcomments) | **GET** /api/tickets/{ticketId}/comments | List comments |
+| [**updateTicketComment**](TicketCommentsApi.md#updateticketcommentoperation) | **PUT** /api/tickets/{ticketId}/comments/{commentNumber} | Update comment |
 
 
 

@@ -12,7 +12,20 @@ export const useAuthStore = defineStore('authStore', {
         email: "",
     }),
     getters: {
-
+        authToken(state): string | null {
+            if (!state.token) return null;
+    
+            try {
+                const decoded = jwtDecode<TokenPayload>(state.token);
+                const now = Date.now();
+                if (decoded.exp * 1000 < now) {
+                    return null;
+                }
+                return state.token;
+            } catch {
+                return null;
+            }
+        }
     },
     actions: {
         isLoggedIn(): boolean {
