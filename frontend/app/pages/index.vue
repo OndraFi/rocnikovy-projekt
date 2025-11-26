@@ -1,14 +1,14 @@
-<script setup>
-
-// Nastavovani layoutu
-// 
-// definePageMeta({
-//   layout: 'default'
-// })
-
-
-</script>
-
 <template>
-  <h2>Main page</h2>
+  <homepage-hero/>
+<!--  <homepage-featured-articles/>-->
+  <homepage-categories/>
+  <homepage-newsletter/>
 </template>
+<script>
+
+export default {
+  data() {
+    return {}
+  }
+}
+</script>

@@ -1,10 +1,11 @@
-<script setup>
-
-</script>
-
 <template>
   <div>
-    <h1>Default layout</h1>
-    <slot />
+    <layout-default-navbar/>
+    <UMain>
+      <slot/>
+    </UMain>
+    <layout-default-footer/>
   </div>
 </template>
+<script setup lang="ts">
+</script>

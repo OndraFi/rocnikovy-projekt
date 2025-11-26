@@ -32,7 +32,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "Register a new user", description = "Create a new user with unique username and email")
+    @Operation(summary = "Register a new user", description = "Create a new user with unique username and email", operationId = "register")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Registration successful", content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "409", description = "Username/email already taken", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -43,7 +43,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(req));
     }
 
-    @Operation(summary = "Login", description = "Authenticate a user and return a JWT")
+    @Operation(summary = "Login", description = "Authenticate a user and return a JWT", operationId = "login")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -55,7 +55,7 @@ public class AuthController {
         return ResponseEntity.ok(LoginResponse.builder().token(token).build());
     }
 
-    @Operation(summary = "Request password reset", description = "Generate a password reset code for the given identifier (username/email)")
+    @Operation(summary = "Request password reset", description = "Generate a password reset code for the given identifier (username/email)", operationId = "requestPasswordReset")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reset code generated", content = @Content(schema = @Schema(implementation = PasswordResetCodeResponse.class))),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -67,7 +67,7 @@ public class AuthController {
         return ResponseEntity.ok(PasswordResetCodeResponse.builder().code(code).build());
     }
 
-    @Operation(summary = "Confirm password reset", description = "Reset password using the provided reset code")
+    @Operation(summary = "Confirm password reset", description = "Reset password using the provided reset code", operationId = "confirmPasswordReset")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Password reset successful", content = @Content(schema = @Schema(implementation = MessageResponse.class))),
             @ApiResponse(responseCode = "422", description = "Invalid/expired reset code", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -79,7 +79,7 @@ public class AuthController {
         return ResponseEntity.ok(MessageResponse.builder().message("Password reset successful").build());
     }
 
-    @Operation(summary = "Change password", description = "Change password for the authenticated user")
+    @Operation(summary = "Change password", description = "Change password for the authenticated user", operationId = "changePassword")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Password changed", content = @Content(schema = @Schema(implementation = MessageResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or expired token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),

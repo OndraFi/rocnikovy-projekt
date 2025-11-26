@@ -44,7 +44,7 @@ public class TicketCommentController {
 
     private final TicketCommentService ticketCommentService;
 
-    @Operation(summary = "List comments", description = "Get paginated comments for a ticket")
+    @Operation(summary = "List comments", description = "Get paginated comments for a ticket", operationId = "listTicketComments")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Comments found",
                     content = @Content(schema = @Schema(implementation = PaginatedTicketCommentResponse.class)))
@@ -58,7 +58,7 @@ public class TicketCommentController {
         return ResponseEntity.ok(ticketCommentService.listComments(ticketId, pageable));
     }
 
-    @Operation(summary = "Create comment", description = "Add a comment to a ticket")
+    @Operation(summary = "Create comment", description = "Add a comment to a ticket", operationId = "createTicketComment")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Comment created",
                     content = @Content(schema = @Schema(implementation = TicketCommentResponse.class))),
@@ -76,7 +76,7 @@ public class TicketCommentController {
                 .body(created);
     }
 
-    @Operation(summary = "Update comment", description = "Edit a comment")
+    @Operation(summary = "Update comment", description = "Edit a comment", operationId = "updateTicketComment")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Comment updated",
                     content = @Content(schema = @Schema(implementation = TicketCommentResponse.class)))
@@ -91,7 +91,7 @@ public class TicketCommentController {
         return ResponseEntity.ok(ticketCommentService.updateComment(ticketId, commentNumber, req));
     }
 
-    @Operation(summary = "Delete comment", description = "Delete a comment")
+    @Operation(summary = "Delete comment", description = "Delete a comment", operationId = "deleteTicketComment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Comment deleted")
     })

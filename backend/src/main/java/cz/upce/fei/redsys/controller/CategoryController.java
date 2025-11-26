@@ -42,7 +42,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @Operation(summary = "Create category", description = "Create a new category.")
+    @Operation(summary = "Create category", description = "Create a new category.", operationId = "createCategory")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Category created",
                     content = @Content(schema = @Schema(implementation = CategoryResponse.class))),
@@ -62,7 +62,7 @@ public class CategoryController {
                 .body(created);
     }
 
-    @Operation(summary = "Get category", description = "Get a category by ID")
+    @Operation(summary = "Get category", description = "Get a category by ID", operationId = "getCategory")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category found",
                     content = @Content(schema = @Schema(implementation = CategoryResponse.class)))
@@ -73,7 +73,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.get(id));
     }
 
-    @Operation(summary = "List categories", description = "List categories with pagination")
+    @Operation(summary = "List categories", description = "List categories with pagination", operationId = "listCategories")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Categories found",
                     content = @Content(schema = @Schema(implementation = PaginatedCategoryResponse.class)))
@@ -84,7 +84,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.list(pageable));
     }
 
-    @Operation(summary = "Update category", description = "Update category fields")
+    @Operation(summary = "Update category", description = "Update category fields", operationId = "updateCategory")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category updated",
                     content = @Content(schema = @Schema(implementation = CategoryResponse.class))),
@@ -104,7 +104,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.update(id, req));
     }
 
-    @Operation(summary = "Delete category", description = "Delete a category")
+    @Operation(summary = "Delete category", description = "Delete a category", operationId = "deleteCategory")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Category deleted"),
             @ApiResponse(responseCode = "403", description = "Not allowed - insufficient role",
