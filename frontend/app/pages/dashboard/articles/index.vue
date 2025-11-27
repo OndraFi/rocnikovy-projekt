@@ -7,6 +7,7 @@
         :data="articles"
         :columns="columns"
         class="flex-1"
+        @select="onRowSelect"
     />
 
     <div class="flex justify-end border-t border-default pt-4 px-4">
@@ -23,7 +24,7 @@
 <script lang="ts">
 import { defineComponent, h } from 'vue';
 import type { ArticleResponse, ListArticlesRequest } from '~~/api';
-import type { TableColumn } from '@nuxt/ui';
+import type { TableColumn, TableRow } from '@nuxt/ui';
 
 interface ArticleTable {
   id?: number;
@@ -131,6 +132,11 @@ export default defineComponent({
     });
   },
   methods: {
+    onRowSelect(e: Event, row: TableRow<ArticleResponse>) {
+      if (row.original.id) {
+        this.$router.push(`/dashboard/articles/${row.original.id}`);
+      }
+    },
     // volání z UPagination
     onPageChange(p: number) {
       console.log("page change",p);
