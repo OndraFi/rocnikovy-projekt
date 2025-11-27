@@ -57,6 +57,12 @@ const groups = computed(() => [{
   items: links.flat()
 }])
 
+const authStore = useAuthStore();
+const router = useRouter();
+const logout = () => {
+  authStore.logout()
+  router.push('/dashboard/login')
+}
 </script>
 
 <template>
@@ -70,7 +76,7 @@ const groups = computed(() => [{
         :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        Deník Online
+        <UIcon name="lucide:newspaper" class="w-8 h-8 text-primary-600" />
       </template>
 
       <template #default="{ collapsed }">
@@ -94,7 +100,7 @@ const groups = computed(() => [{
       </template>
 
       <template #footer="{ collapsed }">
-        footer
+        <UButton icon="i-lucide-log-out" class="w-full" @click="logout">Odhlásit</UButton>
       </template>
     </UDashboardSidebar>
 
@@ -108,7 +114,7 @@ const groups = computed(() => [{
           </template>
 
           <template #right>
-            zde může něco být
+
           </template>
         </UDashboardNavbar>
 
