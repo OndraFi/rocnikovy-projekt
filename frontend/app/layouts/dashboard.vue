@@ -57,31 +57,6 @@ const groups = computed(() => [{
   items: links.flat()
 }])
 
-onMounted(async () => {
-  const cookie = useCookie('cookie-consent')
-  if (cookie.value === 'accepted') {
-    return
-  }
-
-  toast.add({
-    title: 'We use first-party cookies to enhance your experience on our website.',
-    duration: 0,
-    close: false,
-    actions: [{
-      label: 'Accept',
-      color: 'neutral',
-      variant: 'outline',
-      onClick: () => {
-        cookie.value = 'accepted'
-      }
-    }, {
-      label: 'Opt out',
-      color: 'neutral',
-      variant: 'ghost'
-    }]
-  })
-})
-
 </script>
 
 <template>
@@ -125,7 +100,29 @@ onMounted(async () => {
 
     <UDashboardSearch :groups="groups" />
 
-    <slot />
+    <UDashboardPanel id="Dashboard">
+      <template #header>
+        <UDashboardNavbar title="Dashboard" :ui="{ right: 'gap-3' }">
+          <template #leading>
+            <UDashboardSidebarCollapse />
+          </template>
+
+          <template #right>
+            zde může něco být
+          </template>
+        </UDashboardNavbar>
+
+        <UDashboardToolbar>
+          <template #left>
+            <dashboard-bread-crumbs/>
+          </template>
+        </UDashboardToolbar>
+      </template>
+
+      <template #body>
+        <slot />
+      </template>
+    </UDashboardPanel>
 
   </UDashboardGroup>
 </template>

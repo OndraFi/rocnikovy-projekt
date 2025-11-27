@@ -7,7 +7,11 @@ import type {LoginOperationRequest, LoginRequest} from "~~/api";
 
 export default {
   name: 'LoginPage',
-
+  setup(){
+    definePageMeta({
+      layout: 'login',
+    })
+  },
   methods: {
     onLogin(payload: LoginRequest) {
       console.log('Login emit chycen:', payload)

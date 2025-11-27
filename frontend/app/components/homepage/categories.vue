@@ -6,41 +6,65 @@
 
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 
-        <!-- Zprávy -->
-        <div
-            class="group cursor-pointer bg-white rounded-xl p-6 text-center hover:shadow-xl transition-all border border-gray-200 hover:border-transparent"
-          v-for="c in categories"
-        >
+        <!-- Skeletony při načítání -->
+        <template v-if="fetching && (!categories || categories.length === 0)">
           <div
-              class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
+              v-for="n in size"
+              :key="'category-skeleton-' + n"
+              class="group bg-white rounded-xl p-6 text-center border border-gray-200"
           >
-            <UIcon name="lucide:folder" class="w-8 h-8 text-white" />
+            <div
+                class="w-16 h-16 bg-gradient-to-br from-slate-200 to-slate-100 rounded-xl flex items-center justify-center mx-auto mb-4"
+            >
+              <USkeleton class="w-8 h-8 rounded-lg" />
+            </div>
+            <USkeleton class="h-5 w-24 mx-auto mb-2" />
+            <USkeleton class="h-4 w-32 mx-auto" />
           </div>
-          <h3 class="mb-1">{{c.name}}</h3>
-          <p class="text-sm text-gray-500">{{c.description}}</p>
-        </div>
+        </template>
 
+        <!-- Reálné kategorie -->
+        <template v-else>
+          <div
+              v-for="c in categories"
+              :key="c.id || c.name"
+              class="group cursor-pointer bg-white rounded-xl p-6 text-center hover:shadow-xl transition-all border border-gray-200 hover:border-transparent"
+          >
+            <div
+                class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
+            >
+              <UIcon name="lucide:folder" class="w-8 h-8 text-white" />
+            </div>
+            <h3 class="mb-1">{{ c.name }}</h3>
+            <p class="text-sm text-gray-500">{{ c.description }}</p>
+          </div>
+        </template>
 
       </div>
+
       <div class="flex">
-        <UButton v-if="canGetAnotherPage"
-                 :disabled="fetching"
-                 class="ms-auto me-auto mt-6"
-                 size="xl"
-                 variant="outline"
-                 color="primary"
-                 @click="getAnotherPage" >načíst další</UButton>
+        <UButton
+            v-if="canGetAnotherPage"
+            :disabled="fetching"
+            class="ms-auto me-auto mt-6"
+            size="xl"
+            variant="outline"
+            color="primary"
+            @click="getAnotherPage"
+        >
+          načíst další
+        </UButton>
       </div>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import type {CategoryResponse, ListCategoriesRequest} from "~~/api";
+import type { CategoryResponse, ListCategoriesRequest } from "~~/api";
 
 export default {
   name: 'Categories',
-  data(){
+  data() {
     return {
       categories: null as CategoryResponse[] | null,
       page: 1,
@@ -49,33 +73,41 @@ export default {
       fetching: false,
     }
   },
-  methods:{
-    async getAnotherPage(){
+  methods: {
+    async getAnotherPage() {
       this.page++;
       await this.getCategories();
     },
-    async getCategories(){
+    async getCategories() {
       this.fetching = true;
-      const listCategoriesRequest : ListCategoriesRequest = {
+
+      const listCategoriesRequest: ListCategoriesRequest = {
         pageable: {
           page: this.page,
           size: this.size
         }
-      }
-      this.$categoriesApi.listCategories(listCategoriesRequest).then(res=>{
-        if(res.categories)
-          this.categories = res.categories;
-        if(res.totalPages && this.page >= res.totalPages)
-          this.canGetAnotherPage = false;
-        console.log(res);
-        this.fetching = false;
-      }).catch(err=>{
-        console.error(err.message)
-        this.fetching = false;
-      })
+      };
+
+      this.$categoriesApi
+          .listCategories(listCategoriesRequest)
+          .then(res => {
+            if (res.categories)
+              this.categories = res.categories;
+
+            if (res.totalPages && this.page >= res.totalPages)
+              this.canGetAnotherPage = false;
+
+            console.log(res);
+          })
+          .catch(err => {
+            console.error(err.message);
+          })
+          .finally(() => {
+            this.fetching = false;
+          });
     }
   },
-  created(){
+  created() {
     this.getCategories();
   }
 }

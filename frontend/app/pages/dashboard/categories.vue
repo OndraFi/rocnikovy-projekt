@@ -4,8 +4,15 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-
+<script lang="ts">
+export default {
+  name: "Dashboard",
+  setup(){
+    definePageMeta({
+      layout: 'dashboard',
+    })
+  }
+}
 </script>
 
 <style>
