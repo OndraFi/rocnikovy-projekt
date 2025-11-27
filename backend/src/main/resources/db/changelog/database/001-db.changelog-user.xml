@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+           http://www.liquibase.org/xml/ns/dbchangelog
+           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ========================================================== -->
+    <!--   USERS TABLE                                              -->
+    <!-- ========================================================== -->
+    <changeSet id="create-users-table" author="system">
+
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+
+            <column name="username" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="email" type="VARCHAR(254)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="full_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="role" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- ============================================ -->
+        <!-- Indexes (odpovídají anotacím v entitě)       -->
+        <!-- ============================================ -->
+
+        <createIndex indexName="ix_users_username"
+                     tableName="users"
+                     unique="true">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex indexName="ix_users_email"
+                     tableName="users"
+                     unique="true">
+            <column name="email"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

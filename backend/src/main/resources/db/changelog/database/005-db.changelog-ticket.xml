@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+           http://www.liquibase.org/xml/ns/dbchangelog
+           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ========================================================== -->
+    <!--   TICKETS TABLE                                            -->
+    <!-- ========================================================== -->
+    <changeSet id="create-tickets-table" author="system">
+
+        <createTable tableName="tickets">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+
+            <column name="version" type="BIGINT"/>
+
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="VARCHAR(2000)"/>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="TIMESTAMP"/>
+
+            <column name="state" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="assigned_to" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="article_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- =============================== -->
+        <!--  Foreign keys                   -->
+        <!-- =============================== -->
+
+        <addForeignKeyConstraint
+                baseTableName="tickets"
+                baseColumnNames="assigned_to"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_ticket_assigned_to"/>
+
+        <addForeignKeyConstraint
+                baseTableName="tickets"
+                baseColumnNames="created_by"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_ticket_created_by"/>
+
+        <addForeignKeyConstraint
+                baseTableName="tickets"
+                baseColumnNames="article_id"
+                referencedTableName="articles"
+                referencedColumnNames="id"
+                constraintName="fk_ticket_article"/>
+
+    </changeSet>
+
+</databaseChangeLog>

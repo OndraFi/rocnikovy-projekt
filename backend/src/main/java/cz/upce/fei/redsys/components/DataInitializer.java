@@ -7,10 +7,12 @@ import cz.upce.fei.redsys.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,9 +25,15 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CategoryRepository categoryRepository;
     private final ArticleRepository articleRepository;
+    private final Environment env;
+
 
     @Override
     public void run(String... args) throws Exception {
+        boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
+        if (!isDev) {
+            return;
+        }
         log.info("Data init running...");
         String hashedPassword = passwordEncoder.encode("heslo123");
         User user = User.builder()

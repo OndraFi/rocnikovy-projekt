@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+           http://www.liquibase.org/xml/ns/dbchangelog
+           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ============================================= -->
+    <!--  ARTICLES TABLE                               -->
+    <!-- ============================================= -->
+    <changeSet id="create-articles-table" author="system">
+        <preConditions onFail="HALT">
+            <tableExists tableName="users"/>
+        </preConditions>
+        <createTable tableName="articles">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="version" type="BIGINT"/>
+
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="article_state" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="published_at" type="TIMESTAMP"/>
+
+            <column name="author_id" type="BIGINT"/>
+            <column name="editor_id" type="BIGINT"/>
+        </createTable>
+
+        <!-- Foreign keys -->
+        <addForeignKeyConstraint
+                baseTableName="articles"
+                baseColumnNames="author_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_articles_author"/>
+
+        <addForeignKeyConstraint
+                baseTableName="articles"
+                baseColumnNames="editor_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_articles_editor"/>
+    </changeSet>
+
+    <!-- ============================================= -->
+    <!--  ARTICLE <-> CATEGORY MANY-TO-MANY TABLE      -->
+    <!-- ============================================= -->
+    <changeSet id="create-article-categories-table" author="system">
+        <createTable tableName="article_categories">
+            <column name="article_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="article_categories"
+                columnNames="article_id, category_id"
+                constraintName="pk_article_categories"/>
+
+        <addForeignKeyConstraint
+                baseTableName="article_categories"
+                baseColumnNames="article_id"
+                referencedTableName="articles"
+                referencedColumnNames="id"
+                constraintName="fk_article_categories_article"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="article_categories"
+                baseColumnNames="category_id"
+                referencedTableName="categories"
+                referencedColumnNames="id"
+                constraintName="fk_article_categories_category"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>
