@@ -226,7 +226,7 @@ export default defineComponent({
       try {
         await this.$articlesApi.deleteArticle({ id: this.article.id })
         this.toast.add({ title: 'Článek smazán', color: 'green' })
-        this.$router.push('/articles')
+        this.$router.push('/dashboard/articles')
       } catch (e: any) {
         console.error(e)
         this.toast.add({ title: 'Chyba při mazání', description: e?.message || 'Nepodařilo se smazat článek.', color: 'red' })
