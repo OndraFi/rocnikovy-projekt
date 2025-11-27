@@ -17,6 +17,9 @@
           <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Kultura</NuxtLink>
           <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Technologie</NuxtLink>
           <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Názory</NuxtLink>
+          <NuxtLink v-if="authStore.isLoggedIn()"  to="/dashboard" class="px-2 py-2 rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 hover:text-blue-600 transition-colors">
+            Dashboard
+          </NuxtLink>
         </div>
 
         <!-- Pravá strana -->
@@ -71,6 +74,9 @@
           <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
             Názory
           </NuxtLink>
+          <NuxtLink v-if="authStore.isLoggedIn()"  to="/dashboard" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
+            Dashboard
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -83,6 +89,7 @@ export default {
 
   data() {
     return {
+      authStore: useAuthStore(),
       isMobileMenuOpen: false as boolean
     }
   },

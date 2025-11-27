@@ -57,6 +57,12 @@ const groups = computed(() => [{
   items: links.flat()
 }])
 
+const authStore = useAuthStore();
+const router = useRouter();
+const logout = () => {
+  authStore.logout()
+  router.push('/dashboard/login')
+}
 </script>
 
 <template>
@@ -94,7 +100,7 @@ const groups = computed(() => [{
       </template>
 
       <template #footer="{ collapsed }">
-        footer
+        <UButton icon="i-lucide-log-out" class="w-full" @click="logout">Odhlásit</UButton>
       </template>
     </UDashboardSidebar>
 
