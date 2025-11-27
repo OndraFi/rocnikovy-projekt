@@ -76,7 +76,7 @@ const logout = () => {
         :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <UIcon name="lucide:newspaper" class="w-8 h-8 text-blue-600" />
+        <UIcon name="lucide:newspaper" class="w-8 h-8 text-primary-600" />
       </template>
 
       <template #default="{ collapsed }">
