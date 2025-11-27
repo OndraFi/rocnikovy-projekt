@@ -57,6 +57,7 @@
         <!-- Article 1 -->
         <insert tableName="articles">
             <column name="id" valueNumeric="1"/>
+            <column name="version" valueNumeric="0"/>
             <column name="title" value="Football News"/>
             <column name="article_state" value="PUBLISHED"/>
             <column name="author_id" valueNumeric="1"/>
@@ -66,6 +67,7 @@
         <!-- 5x Ekonomy News -->
         <insert tableName="articles">
             <column name="id" valueNumeric="2"/>
+            <column name="version" valueNumeric="0"/>
             <column name="title" value="Ekonomy News 1"/>
             <column name="article_state" value="PUBLISHED"/>
             <column name="author_id" valueNumeric="1"/>
@@ -73,6 +75,7 @@
         </insert>
         <insert tableName="articles">
             <column name="id" valueNumeric="3"/>
+            <column name="version" valueNumeric="0"/>
             <column name="title" value="Ekonomy News 2"/>
             <column name="article_state" value="PUBLISHED"/>
             <column name="author_id" valueNumeric="1"/>
@@ -80,6 +83,7 @@
         </insert>
         <insert tableName="articles">
             <column name="id" valueNumeric="4"/>
+            <column name="version" valueNumeric="0"/>
             <column name="title" value="Ekonomy News 3"/>
             <column name="article_state" value="PUBLISHED"/>
             <column name="author_id" valueNumeric="1"/>
@@ -87,6 +91,7 @@
         </insert>
         <insert tableName="articles">
             <column name="id" valueNumeric="5"/>
+            <column name="version" valueNumeric="0"/>
             <column name="title" value="Ekonomy News 4"/>
             <column name="article_state" value="PUBLISHED"/>
             <column name="author_id" valueNumeric="1"/>
@@ -94,6 +99,7 @@
         </insert>
         <insert tableName="articles">
             <column name="id" valueNumeric="6"/>
+            <column name="version" valueNumeric="0"/>
             <column name="title" value="Ekonomy News 5"/>
             <column name="article_state" value="PUBLISHED"/>
             <column name="author_id" valueNumeric="1"/>
