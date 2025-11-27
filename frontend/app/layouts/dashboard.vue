@@ -108,7 +108,7 @@ const groups = computed(() => [{
           </template>
 
           <template #right>
-            zde může něco být
+
           </template>
         </UDashboardNavbar>
 
