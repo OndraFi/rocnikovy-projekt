@@ -194,12 +194,13 @@ export default defineComponent({
 
       this.saving = true
       try {
+        const categories = [...this.article?.categories?.values()];
         const payload: UpdateArticleRequest = {
           title: this.form.title.trim(),
           content: this.form.content,
           articleState: this.article.articleState,
           publishedAt: this.article.publishedAt,
-          categoryIds: this.article.categories?.map(c => c.id) || [],
+          categoryIds: categories.map(c => c.id) || [],
           editorUsername: this.article.editor?.username
         }
         const request = { id: this.article.id, updateArticleRequest: payload }
