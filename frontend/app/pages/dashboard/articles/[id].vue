@@ -22,6 +22,9 @@ export default{
     getArticle(){
       this.$route.params.id;
     }
+  },
+  created(){
+    this.getArticle();
   }
 }
 </script>
