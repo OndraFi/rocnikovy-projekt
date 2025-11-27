@@ -75,43 +75,68 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent } from 'vue';
 import type { ArticleResponse } from '~~/api';
 
-definePageMeta({
-  layout: 'dashboard',
-});
+export default defineComponent({
+  name: 'ArticleDetailPage',
 
-const route = useRoute();
-const id = Number(route.params.id);
+  data() {
+    return {
+      article: null as ArticleResponse | null,
+      loading: true
+    };
+  },
 
-const article = ref<ArticleResponse | null>(null);
+  computed: {
+    stateColor(): string {
+      switch (this.article?.articleState) {
+        case 'PUBLISHED':
+          return 'green';
+        case 'REVIEW':
+          return 'blue';
+        case 'DRAFT':
+          return 'yellow';
+        default:
+          return 'gray';
+      }
+    }
+  },
 
-// Načtení článku
-const { $articlesApi } = useNuxtApp();
+  methods: {
+    async loadArticle() {
+      try {
+        const id = Number(this.$route.params.id);
+        const { $articlesApi } = useNuxtApp();
 
-const { data, error } = await useAsyncData(
-  `article-${id}`,
-  () => $articlesApi.getArticle(id)
-);
+        const res = await this.$articlesApi.getArticle({id});
 
-if (data.value) {
-  article.value = data.value;
-}
+        console.log(res);
+        this.article = res;
 
-// Stav → barva badge
-const stateColor = computed(() => {
-  switch (article.value?.articleState) {
-    case 'PUBLISHED': return 'green';
-    case 'REVIEW': return 'blue';
-    case 'DRAFT': return 'yellow';
-    default: return 'gray';
+      } catch (err) {
+        console.error('Error loading article:', err);
+      } finally {
+        this.loading = false;
+      }
+    }
+  },
+
+  created() {
+    this.loadArticle();
+  },
+
+  setup() {
+    // Layout musí být v setup, i když používáš Options API
+    definePageMeta({
+      layout: 'dashboard'
+    });
   }
 });
 </script>
 
 <style scoped>
-/* Styl pro HTML obsah článku */
 .prose :deep(img) {
   max-width: 100%;
   border-radius: 8px;
