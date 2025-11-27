@@ -46,7 +46,7 @@ public class DataInitializer implements CommandLineRunner {
                 .password(hashedPassword)
                 .role(UserRole.ADMIN)
                 .build();
-        if(userRepository.findByUsername("admin").isEmpty()) {
+        if (userRepository.findByUsername("admin").isEmpty()) {
             log.info("Creating user {}", user.getEmail());
             userRepository.save(user);
         }
@@ -58,7 +58,7 @@ public class DataInitializer implements CommandLineRunner {
         Category c1 = new Category();
         c1.setName("Sport");
         c1.setDescription("Sport related items");
-        if(!categoryRepository.existsByName(c1.getName())) {
+        if (!categoryRepository.existsByName(c1.getName())) {
             log.info("Creating category {}", c1.getName());
             categoryRepository.save(c1);
         }
@@ -66,7 +66,7 @@ public class DataInitializer implements CommandLineRunner {
         Category c2 = new Category();
         c2.setName("Ekonomika");
         c2.setDescription("Ekonomika related items");
-        if(!categoryRepository.existsByName(c2.getName())) {
+        if (!categoryRepository.existsByName(c2.getName())) {
             log.info("Creating category {}", c2.getName());
             categoryRepository.save(c2);
         }
@@ -81,10 +81,25 @@ public class DataInitializer implements CommandLineRunner {
         article1.setAuthor(user);
         article1.setEditor(null);
         article1.setPublishedAt(Instant.now());
-        if(!articleRepository.existsById(1L)) { // pokud není žádný článek, vytvoříme jeden
+        if (!articleRepository.existsById(1L)) { // pokud není žádný článek, vytvoříme jeden
             log.info("Creating articel {}", article1.getTitle());
             articleRepository.save(article1);
-            String content = "<h1>Football News</h1><p>This is the content of the football news article.</p>";
+            String content = """
+                    <h1>Football News</h1>
+                    <p>This is the content of the football news article.</p>
+                    
+                    <h2>Latest Updates</h2>
+                    
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas gravida, elit quis pretium eleifend, urna ipsum tincidunt mi, sed viverra risus turpis non odio. Vestibulum feugiat, ipsum sed consectetur luctus, lacus mauris fermentum leo, sed ullamcorper enim tellus ac augue. Phasellus faucibus massa et lorem consequat feugiat.</p>
+                    
+                    <p>Donec id orci pretium, suscipit leo nec, fermentum risus. Sed elit nisi, faucibus at condimentum quis, interdum et lorem. Nullam sit amet lorem consequat, ultricies nisl a, tristique nibh. Morbi volutpat quam nec ante sollicitudin, vel pellentesque elit porttitor. Vestibulum sit amet commodo nulla.</p>
+                    
+                    <p>Integer placerat, lacus id fermentum ultricies, leo massa interdum tortor, et dictum magna felis non massa. Suspendisse bibendum enim a sem laoreet, vel ultricies arcu varius. Sed a ligula non neque tristique aliquam. Quisque vitae dolor vel lectus volutpat viverra et nec nunc.</p>
+                    
+                    <p>Curabitur id faucibus ex, nec placerat nisl. Duis sollicitudin velit sed orci varius, non pulvinar nunc finibus. Aliquam dapibus eros ac feugiat fermentum. Mauris aliquam est nec auctor euismod. Donec convallis erat ut magna aliquam, a venenatis justo luctus.</p>
+                    
+                    <p>Nam vel semper lectus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi bibendum efficitur risus nec facilisis. Praesent hendrerit libero nec nisi ultricies, ut faucibus ipsum viverra. Etiam convallis arcu vel ligula varius semper.</p>
+                    """;
             ArticleVersion version = new ArticleVersion();
             version.setArticle(article1);
             version.setContent(content);
@@ -94,8 +109,8 @@ public class DataInitializer implements CommandLineRunner {
         }
 
 
-        if(!articleRepository.existsById(2L) || articleRepository.existsById(6L)) { // pokud není žádný článek, vytvoříme jeden
-            for(int i=0; i<5; i++) {
+        if (!articleRepository.existsById(2L) || articleRepository.existsById(6L)) { // pokud není žádný článek, vytvoříme jeden
+            for (int i = 0; i < 5; i++) {
                 Article article = new Article();
                 article.setTitle("Ekonomy News");
                 article.setArticleState(ArticleState.PUBLISHED);
@@ -104,10 +119,26 @@ public class DataInitializer implements CommandLineRunner {
                 article.setEditor(null);
                 article.setPublishedAt(Instant.now());
                 log.info("Creating articel {}", article.getTitle());
-                article.setTitle("Ekonomy News " + (i+1));
+                article.setTitle("Ekonomy News " + (i + 1));
                 articleRepository.save(article);
 
-                String content = "<h1>Ekonomy News " + (i+1) + "</h1><p>This is the content of the economy news article number " + (i+1) + ".</p>";
+                String content = """
+                        <h1>Ekonomi News """ + (i + 1) + """
+                        </h1>
+                        <p>This is the content of the football news article.</p>
+                        
+                        <h2>Latest Updates</h2>
+                        
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas gravida, elit quis pretium eleifend, urna ipsum tincidunt mi, sed viverra risus turpis non odio. Vestibulum feugiat, ipsum sed consectetur luctus, lacus mauris fermentum leo, sed ullamcorper enim tellus ac augue. Phasellus faucibus massa et lorem consequat feugiat.</p>
+                        
+                        <p>Donec id orci pretium, suscipit leo nec, fermentum risus. Sed elit nisi, faucibus at condimentum quis, interdum et lorem. Nullam sit amet lorem consequat, ultricies nisl a, tristique nibh. Morbi volutpat quam nec ante sollicitudin, vel pellentesque elit porttitor. Vestibulum sit amet commodo nulla.</p>
+                        
+                        <p>Integer placerat, lacus id fermentum ultricies, leo massa interdum tortor, et dictum magna felis non massa. Suspendisse bibendum enim a sem laoreet, vel ultricies arcu varius. Sed a ligula non neque tristique aliquam. Quisque vitae dolor vel lectus volutpat viverra et nec nunc.</p>
+                        
+                        <p>Curabitur id faucibus ex, nec placerat nisl. Duis sollicitudin velit sed orci varius, non pulvinar nunc finibus. Aliquam dapibus eros ac feugiat fermentum. Mauris aliquam est nec auctor euismod. Donec convallis erat ut magna aliquam, a venenatis justo luctus.</p>
+                        
+                        <p>Nam vel semper lectus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi bibendum efficitur risus nec facilisis. Praesent hendrerit libero nec nisi ultricies, ut faucibus ipsum viverra. Etiam convallis arcu vel ligula varius semper.</p>
+                        """;
                 ArticleVersion version = new ArticleVersion();
                 version.setArticle(article);
                 version.setContent(content);
