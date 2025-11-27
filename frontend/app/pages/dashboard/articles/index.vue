@@ -6,9 +6,11 @@
         loading-animation="carousel"
         :data="articles"
         :columns="columns"
-        class="flex-1"
+        :meta="tableMeta"
         @select="onRowSelect"
-    />
+        class="flex-1"
+    >
+    </UTable>
 
     <div class="flex justify-end border-t border-default pt-4 px-4">
       <UPagination
@@ -23,18 +25,8 @@
 
 <script lang="ts">
 import { defineComponent, h } from 'vue';
-import type { ArticleResponse, ListArticlesRequest } from '~~/api';
-import type { TableColumn, TableRow } from '@nuxt/ui';
-
-interface ArticleTable {
-  id?: number;
-  title?: string;
-  articleState?: string;
-  publishedAt?: string;
-  author?: string;
-  editor?: string;
-  categories?: string;
-}
+import type {ArticleResponse, CategoryResponse, ListArticlesRequest} from '~~/api';
+import type { TableColumn } from '@nuxt/ui';
 
 export default defineComponent({
   name: 'ArticlesPage',
@@ -45,6 +37,11 @@ export default defineComponent({
       page: 0,
       totalPages: 0,
       size: 10,
+      tableMeta: {
+        class: {
+          tr: 'cursor-pointer hover:bg-gray-50'
+        }
+      },
       columns: [
         {
           accessorKey: 'title',
@@ -79,6 +76,18 @@ export default defineComponent({
               th: 'text-left',
               td: 'text-left text-gray-600'
             }
+          },
+          cell: ({ row }) => {
+            const raw = row.getValue('categories');
+
+            if (!raw) return '-';
+
+            // !!! Převod z iteratoru na normální pole
+            const categories = [...raw.values()];
+
+            if (!categories.length) return '-';
+
+            return categories.map((c: any) => c.name).join(', ');
           }
         },
         {
@@ -132,10 +141,14 @@ export default defineComponent({
     });
   },
   methods: {
-    onRowSelect(e: Event, row: TableRow<ArticleResponse>) {
-      if (row.original.id) {
-        this.$router.push(`/dashboard/articles/${row.original.id}`);
-      }
+    onRowSelect(arg1: any, arg2?: any) {
+      const row = arg2 && arg2.original ? arg2 : arg1; // funguje pro obě verze
+      const article = row?.original ?? row;
+      const id = article?.id;
+
+      if (!id) return;
+
+      this.$router.push(`/dashboard/articles/${id}`);
     },
     // volání z UPagination
     onPageChange(p: number) {

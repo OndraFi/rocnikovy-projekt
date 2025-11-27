@@ -49,7 +49,7 @@ const items = computed<BreadcrumbItem[]>(() => {
 </script>
 
 <template>
-  <div class="mb-4">
+  <div class="">
     <UBreadcrumb :items="items">
       <!-- vlastní separator, ať to vypadá jako "dashboard -> articles" -->
       <template #separator>
