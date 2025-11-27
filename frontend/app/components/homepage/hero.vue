@@ -21,7 +21,8 @@
           </div>
 
           <!-- Reálný hlavní článek -->
-          <div
+          <NuxtLink
+              :to="`/article/${mainArticle.id}`"
               v-else-if="mainArticle"
               class="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white p-8 h-full flex flex-col justify-end"
           >
@@ -42,7 +43,7 @@
             <p class="text-gray-100 text-sm">
               {{ mainArticle.author?.fullName || mainArticle.author?.username }}
             </p>
-          </div>
+          </NuxtLink>
 
           <!-- Fallback když nic není -->
           <div v-else class="h-full flex items-center justify-center text-gray-400 text-sm">
@@ -84,7 +85,7 @@
                 :key="article.id"
                 class="group cursor-pointer bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all"
             >
-              <div class="flex gap-4">
+              <NuxtLink :to="`/article/${article.id}`" class="flex gap-4">
                 <!-- místo obrázku jen „avatar“ s prvním písmenem -->
                 <div class="relative w-16 h-16 sm:w-22 sm:h-22 flex-shrink-0 flex items-center justify-center rounded-lg bg-gradient-to-br from-slate-200 to-slate-100">
                   <span class="text-xl font-semibold text-slate-700">
@@ -105,7 +106,7 @@
                     {{ article.title }}
                   </h3>
                 </div>
-              </div>
+              </NuxtLink>
             </div>
 
             <div v-if="sideArticles.length === 0" class="text-gray-400 text-sm">

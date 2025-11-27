@@ -40,8 +40,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const authStore = useAuthStore();
 
     const config = new Configuration({
-        basePath: runtimeConfig.public.apiBase,         // nastav si v nuxt.config.ts
-        // accessToken může být string nebo funkce – funkce je lepší kvůli reaktivnímu tokenu
+        basePath: runtimeConfig.public.apiBase,
         accessToken: () => authStore.token || ''
     });
 
@@ -52,7 +51,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     const ticketsApi = new TicketsApi(config);
     const ticketCommentsApi = new TicketCommentsApi(config);
 
-    // dostupné přes this.$xxx v komponentách
     vueApp.config.globalProperties.$articlesApi = articlesApi;
     vueApp.config.globalProperties.$articlesVersionsApi = articlesVersionsApi;
     vueApp.config.globalProperties.$authenticationApi = authenticationApi;

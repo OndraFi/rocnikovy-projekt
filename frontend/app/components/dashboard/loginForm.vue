@@ -7,12 +7,12 @@
       <!-- Identifier -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-          Uživatelské jméno nebo e-mail
+          Uživatelské jméno
         </label>
         <input
             v-model="form.identifier"
             type="text"
-            placeholder="např. admin nebo admin@gmail.com"
+            placeholder="uživatelské jméno"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
         />
         <p v-if="errors.identifier" class="text-red-600 text-sm mt-1">{{ errors.identifier }}</p>

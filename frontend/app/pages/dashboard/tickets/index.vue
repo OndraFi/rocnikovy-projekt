@@ -200,7 +200,6 @@ export default defineComponent({
   methods: {
     // klik na řádek → detail ticketu
     onRowSelect(arg1: any, arg2?: any) {
-      // kompatibilita s (event, row) / (row, event)
       const row = arg2 && arg2.original ? arg2 : arg1
       const ticket = row?.original ?? row
       const id = ticket?.id
