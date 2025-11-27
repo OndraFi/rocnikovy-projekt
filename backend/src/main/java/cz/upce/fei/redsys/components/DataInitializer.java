@@ -2,8 +2,10 @@ package cz.upce.fei.redsys.components;
 
 import cz.upce.fei.redsys.domain.*;
 import cz.upce.fei.redsys.repository.ArticleRepository;
+import cz.upce.fei.redsys.repository.ArticleVersionRepository;
 import cz.upce.fei.redsys.repository.CategoryRepository;
 import cz.upce.fei.redsys.repository.UserRepository;
+import cz.upce.fei.redsys.service.ArticleVersionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -25,6 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CategoryRepository categoryRepository;
     private final ArticleRepository articleRepository;
+    private final ArticleVersionRepository articleVersionRepository;
     private final Environment env;
 
 
@@ -81,6 +84,13 @@ public class DataInitializer implements CommandLineRunner {
         if(!articleRepository.existsById(1L)) { // pokud není žádný článek, vytvoříme jeden
             log.info("Creating articel {}", article1.getTitle());
             articleRepository.save(article1);
+            String content = "<h1>Football News</h1><p>This is the content of the football news article.</p>";
+            ArticleVersion version = new ArticleVersion();
+            version.setArticle(article1);
+            version.setContent(content);
+            version.setVersionNumber(1);
+            version.setCreatedBy(user);
+            articleVersionRepository.save(version);
         }
 
 
@@ -96,6 +106,15 @@ public class DataInitializer implements CommandLineRunner {
                 log.info("Creating articel {}", article.getTitle());
                 article.setTitle("Ekonomy News " + (i+1));
                 articleRepository.save(article);
+
+                String content = "<h1>Ekonomy News " + (i+1) + "</h1><p>This is the content of the economy news article number " + (i+1) + ".</p>";
+                ArticleVersion version = new ArticleVersion();
+                version.setArticle(article);
+                version.setContent(content);
+                version.setVersionNumber(1);
+                version.setCreatedBy(user);
+
+                articleVersionRepository.save(version);
             }
         }
     }
