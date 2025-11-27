@@ -18,7 +18,7 @@ const links = [
     },
     {
       label: 'Categories',
-      icon: '',
+      icon: 'i-lucide-list',
       to: '/dashboard/categories',
       onSelect: () => {
         open.value = false
@@ -26,7 +26,7 @@ const links = [
     },
     {
       label: 'Articles',
-      icon: '',
+      icon: 'i-lucide-book-open',
       to: '/dashboard/articles',
       onSelect: () => {
         open.value = false
@@ -34,7 +34,7 @@ const links = [
     },
     {
       label: 'Tickets',
-      icon: '',
+      icon: 'i-lucide-ticket',
       to: '/dashboard/tickets',
       onSelect: () => {
         open.value = false
