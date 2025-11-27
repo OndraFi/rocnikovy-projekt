@@ -6,19 +6,50 @@ const toast = useToast()
 
 const open = ref(false)
 
-const links = [[{
-  label: 'Dashboard',
-  icon: 'i-lucide-house',
-  to: '/dashboard',
-  onSelect: () => {
-    open.value = false
-  }
-}], [{
-  label: 'Otevřít deník',
-  icon: 'i-lucide-file',
-  to: 'http://localhost:3000',
-  target: '_blank'
-}]] satisfies NavigationMenuItem[][]
+const links = [
+  [
+    {
+      label: 'Dashboard',
+      icon: 'i-lucide-house',
+      to: '/dashboard',
+      onSelect: () => {
+        open.value = false
+      }
+    },
+    {
+      label: 'Categories',
+      icon: '',
+      to: '/dashboard/categories',
+      onSelect: () => {
+        open.value = false
+      }
+    },
+    {
+      label: 'Articles',
+      icon: '',
+      to: '/dashboard/articles',
+      onSelect: () => {
+        open.value = false
+      }
+    },
+    {
+      label: 'Tickets',
+      icon: '',
+      to: '/dashboard/tickets',
+      onSelect: () => {
+        open.value = false
+      }
+    }
+  ], 
+  [
+    {
+      label: 'Otevřít deník',
+      icon: 'i-lucide-file',
+      to: 'http://localhost:3000',
+      target: '_blank'
+    }
+  ]
+] satisfies NavigationMenuItem[][]
 
 const groups = computed(() => [{
   id: 'links',

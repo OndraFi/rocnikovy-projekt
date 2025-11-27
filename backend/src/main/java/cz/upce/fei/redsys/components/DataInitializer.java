@@ -33,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
                 .fullName("admin user")
                 .email("admin@gmail.com")
                 .password(hashedPassword)
+                .role(UserRole.ADMIN)
                 .build();
         if(userRepository.findByUsername("admin").isEmpty()) {
             log.info("Creating user {}", user.getEmail());

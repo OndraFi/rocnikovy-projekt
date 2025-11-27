@@ -1,4 +1,3 @@
-.openapi-generator-ignore
 apis/ArticleVersionsApi.ts
 apis/ArticlesApi.ts
 apis/AuthenticationApi.ts

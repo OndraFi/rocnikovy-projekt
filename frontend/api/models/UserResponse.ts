@@ -37,7 +37,27 @@ export interface UserResponse {
      * @memberof UserResponse
      */
     fullName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponse
+     */
+    role?: UserResponseRoleEnum;
 }
+
+
+/**
+ * @export
+ */
+export const UserResponseRoleEnum = {
+    Admin: 'ADMIN',
+    User: 'USER',
+    ChiefEditor: 'CHIEF_EDITOR',
+    Editor: 'EDITOR',
+    Reviewer: 'REVIEWER'
+} as const;
+export type UserResponseRoleEnum = typeof UserResponseRoleEnum[keyof typeof UserResponseRoleEnum];
+
 
 /**
  * Check if a given object implements the UserResponse interface.
@@ -59,6 +79,7 @@ export function UserResponseFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'id': json['id'] == null ? undefined : json['id'],
         'username': json['username'] == null ? undefined : json['username'],
         'fullName': json['fullName'] == null ? undefined : json['fullName'],
+        'role': json['role'] == null ? undefined : json['role'],
     };
 }
 
@@ -76,6 +97,7 @@ export function UserResponseToJSONTyped(value?: UserResponse | null, ignoreDiscr
         'id': value['id'],
         'username': value['username'],
         'fullName': value['fullName'],
+        'role': value['role'],
     };
 }
 

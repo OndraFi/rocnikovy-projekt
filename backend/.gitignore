@@ -36,4 +36,4 @@ out/
 .vscode/
 
 ### Local Configuration ###
-.env
+.env.example

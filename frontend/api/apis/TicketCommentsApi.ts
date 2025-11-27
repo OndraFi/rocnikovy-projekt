@@ -100,7 +100,7 @@ export class TicketCommentsApi extends runtime.BaseAPI {
             }
         }
 
-        let urlPath = `/tickets/{ticketId}/comments`;
+        let urlPath = `/api/tickets/{ticketId}/comments`;
         urlPath = urlPath.replace(`{${"ticketId"}}`, encodeURIComponent(String(requestParameters['ticketId'])));
 
         const response = await this.request({
@@ -155,7 +155,7 @@ export class TicketCommentsApi extends runtime.BaseAPI {
             }
         }
 
-        let urlPath = `/tickets/{ticketId}/comments/{commentNumber}`;
+        let urlPath = `/api/tickets/{ticketId}/comments/{commentNumber}`;
         urlPath = urlPath.replace(`{${"ticketId"}}`, encodeURIComponent(String(requestParameters['ticketId'])));
         urlPath = urlPath.replace(`{${"commentNumber"}}`, encodeURIComponent(String(requestParameters['commentNumber'])));
 
@@ -213,7 +213,7 @@ export class TicketCommentsApi extends runtime.BaseAPI {
             }
         }
 
-        let urlPath = `/tickets/{ticketId}/comments`;
+        let urlPath = `/api/tickets/{ticketId}/comments`;
         urlPath = urlPath.replace(`{${"ticketId"}}`, encodeURIComponent(String(requestParameters['ticketId'])));
 
         const response = await this.request({
@@ -276,7 +276,7 @@ export class TicketCommentsApi extends runtime.BaseAPI {
             }
         }
 
-        let urlPath = `/tickets/{ticketId}/comments/{commentNumber}`;
+        let urlPath = `/api/tickets/{ticketId}/comments/{commentNumber}`;
         urlPath = urlPath.replace(`{${"ticketId"}}`, encodeURIComponent(String(requestParameters['ticketId'])));
         urlPath = urlPath.replace(`{${"commentNumber"}}`, encodeURIComponent(String(requestParameters['commentNumber'])));
 

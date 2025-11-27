@@ -4,6 +4,7 @@ import cz.upce.fei.redsys.dto.AuthDto;
 import cz.upce.fei.redsys.dto.AuthDto.*;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
+import cz.upce.fei.redsys.dto.UserDto;
 import cz.upce.fei.redsys.dto.UserDto.UserResponse;
 import cz.upce.fei.redsys.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,18 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+
+    @Operation(summary = "Get authenticated user", description = "Get data of currently authenticated user", operationId = "getInfo")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or expired token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping(value = "/info")
+    public ResponseEntity<UserResponse> getInfo() {
+        log.debug("GET /api/auth/info");
+        return ResponseEntity.ok(UserDto.toUserResponse(authService.currentUser()));
+    }
 
     @Operation(summary = "Register a new user", description = "Create a new user with unique username and email", operationId = "register")
     @ApiResponses({

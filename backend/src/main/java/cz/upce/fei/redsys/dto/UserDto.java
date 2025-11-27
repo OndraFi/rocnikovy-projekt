@@ -1,6 +1,7 @@
 package cz.upce.fei.redsys.dto;
 
 import cz.upce.fei.redsys.domain.User;
+import cz.upce.fei.redsys.domain.UserRole;
 import lombok.Builder;
 
 public final class UserDto {
@@ -10,7 +11,8 @@ public final class UserDto {
     public record UserResponse(
             Long id,
             String username,
-            String fullName
+            String fullName,
+            UserRole role
     ) {}
 
     public static UserResponse toUserResponse(User user) {
@@ -18,6 +20,7 @@ public final class UserDto {
                 .id(user.getId())
                 .username(user.getUsername())
                 .fullName(user.getFullName())
+                .role(user.getRole())
                 .build();
     }
 }

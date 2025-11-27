@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 | [**changePassword**](AuthenticationApi.md#changepassword) | **POST** /api/auth/change-password | Change password |
 | [**confirmPasswordReset**](AuthenticationApi.md#confirmpasswordreset) | **POST** /api/auth/reset-password | Confirm password reset |
+| [**getInfo**](AuthenticationApi.md#getinfo) | **GET** /api/auth/info | Get authenticated user |
 | [**login**](AuthenticationApi.md#loginoperation) | **POST** /api/auth/login | Login |
 | [**register**](AuthenticationApi.md#registeroperation) | **POST** /api/auth/register | Register a new user |
 | [**requestPasswordReset**](AuthenticationApi.md#requestpasswordreset) | **POST** /api/auth/request-password-reset | Request password reset |
@@ -150,6 +151,71 @@ No authorization required
 |-------------|-------------|------------------|
 | **200** | Password reset successful |  -  |
 | **422** | Invalid/expired reset code |  -  |
+| **400** | Validation error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getInfo
+
+> UserResponse getInfo()
+
+Get authenticated user
+
+Get data of currently authenticated user
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AuthenticationApi,
+} from '';
+import type { GetInfoRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new AuthenticationApi(config);
+
+  try {
+    const data = await api.getInfo();
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**UserResponse**](UserResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Success |  -  |
+| **401** | Unauthorized - invalid or expired token |  -  |
 | **400** | Validation error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
