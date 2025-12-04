@@ -70,8 +70,8 @@
       <!-- Categories -->
       <div>
         <h3 class="font-semibold text-gray-500 mb-2">Kategorie</h3>
-        <div v-if="article.categories?.length" class="flex gap-2 flex-wrap">
-          <UBadge v-for="cat in article.categories" :key="cat.id" color="gray">
+        <div v-if="article.categories" class="flex gap-2 flex-wrap">
+          <UBadge v-for="cat in Array.from(article.categories)" :key="cat.id" color="gray">
             {{ cat.name }}
           </UBadge>
         </div>
