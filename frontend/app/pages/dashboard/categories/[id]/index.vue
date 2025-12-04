@@ -77,10 +77,17 @@
       </div>
 
       <!-- Save button in edit mode -->
-      <div v-if="isEditing" class="flex justify-end pt-2">
+      <div class="flex justify-end pt-2">
+        <UButton icon="material-symbols-delete-rounded"
+                 color="error"
+                 @click="deleteCategory">
+          Smazat
+        </UButton>
         <UButton
+            v-if="isEditing"
             icon="i-heroicons-check"
             color="primary"
+            class="ml-2"
             :loading="saving"
             @click="saveCategory"
         >
@@ -99,7 +106,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import type {
-  CategoryResponse,
+  CategoryResponse, DeleteCategoryRequest,
   GetCategoryRequest,
   UpdateCategoryOperationRequest,
   UpdateCategoryRequest
@@ -174,7 +181,29 @@ export default defineComponent({
       }
       this.isEditing = !this.isEditing
     },
-
+    async deleteCategory(){
+      if(!this.category || !this.category.id)
+        return;
+      console.log(this.category.id);
+      const request : DeleteCategoryRequest = {
+        id: this.category.id
+      }
+      this.$categoriesApi.deleteCategory(request).then(response => {
+        this.toast.add({
+          title: this.category.name,
+          description: 'Kategorie úspěšně smazána.',
+          color: 'primary'
+        })
+        this.$router.push('/dashboard/categories');
+      }).catch(error => {
+        console.log(error)
+        this.toast.add({
+          title: this.category.name,
+          description: 'Kategorii se nepovedlo smazat.',
+          color: 'error'
+        })
+      })
+    },
     async saveCategory() {
       if (!this.category || !this.category.id) return
 

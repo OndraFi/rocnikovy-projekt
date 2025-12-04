@@ -1,25 +1,32 @@
 <template>
-  <div>
-    <UTable
-        :loading="fetching"
-        loading-color="primary"
-        loading-animation="carousel"
-        :data="categories"
-        :columns="columns"
-        :meta="tableMeta"
-        @select="onRowSelect"
-        class="flex-1"
-    />
+  <NuxtLayout>
+    <template #actions>
+      <dashboard-categories-create-modal/>
+    </template>
 
-    <div class="flex justify-end border-t border-default pt-4 px-4">
-      <UPagination
-          :page="page"
-          :items-per-page="size"
-          :total="totalElements"
-          @update:page="onPageChange"
+    <div>
+
+      <UTable
+          :loading="fetching"
+          loading-color="primary"
+          loading-animation="carousel"
+          :data="categories"
+          :columns="columns"
+          :meta="tableMeta"
+          @select="onRowSelect"
+          class="flex-1"
       />
+      <div class="flex justify-end border-t border-default pt-4 px-4">
+
+        <UPagination
+            :page="page"
+            :items-per-page="size"
+            :total="totalElements"
+            @update:page="onPageChange"
+        />
+      </div>
     </div>
-  </div>
+  </NuxtLayout>
 </template>
 
 <script lang="ts">

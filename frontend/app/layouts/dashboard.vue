@@ -114,7 +114,7 @@ const logout = () => {
           </template>
 
           <template #right>
-
+            <slot name="actions" />
           </template>
         </UDashboardNavbar>
 
