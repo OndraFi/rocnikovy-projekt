@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import {jwtDecode} from 'jwt-decode';
+import type {UserResponse} from "~~/api";
 
 interface TokenPayload {
     exp: number;
@@ -10,6 +11,7 @@ export const useAuthStore = defineStore('authStore', {
     state: () => ({
         token: "",
         email: "",
+        user: null as UserResponse | null,
     }),
     getters: {
         authToken(state): string | null {
@@ -49,6 +51,9 @@ export const useAuthStore = defineStore('authStore', {
         },
         logIn(token: string){
             this.token = token;
+        },
+        setUser(user: UserResponse){
+            this.user = user;
         }
     },
     persist: true,

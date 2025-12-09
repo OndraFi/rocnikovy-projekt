@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import type {LoginOperationRequest, LoginRequest} from "~~/api";
+import type {LoginOperationRequest, LoginRequest, UserResponse} from "~~/api";
 
 export default {
   name: 'LoginPage',
@@ -11,6 +11,11 @@ export default {
     definePageMeta({
       layout: 'login',
     })
+  },
+  data(){
+    return {
+      authStore: useAuthStore(),
+    }
   },
   methods: {
     onLogin(payload: LoginRequest) {
@@ -20,9 +25,12 @@ export default {
       }
       this.$authenticationApi.login(loginOperationRequest).then(response => {
         if(response.token){
-          const authStore = useAuthStore();
-          authStore.logIn(response.token);
-          this.$router.push('/dashboard');
+          this.authStore.logIn(response.token);
+
+          this.$authenticationApi.getInfo().then((response: UserResponse)=>{
+            this.authStore.setUser(response);
+            this.$router.push('/dashboard');
+          });
         }
       }).catch(error => {
         const toast = useToast()
