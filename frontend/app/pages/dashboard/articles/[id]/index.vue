@@ -87,13 +87,15 @@
           <div v-else v-html="article.content"></div>
         </div>
 
-        <UTextarea
-            v-else
-            v-model="form.content"
-            placeholder="Obsah článku"
-            :rows="8"
-            class="w-full text-base"
-        />
+        <TiptapEditor v-else v-model="form.content"/>
+
+<!--        <UTextarea-->
+<!--            v-else-->
+<!--            v-model="form.content"-->
+<!--            placeholder="Obsah článku"-->
+<!--            :rows="8"-->
+<!--            class="w-full text-base"-->
+<!--        />-->
       </div>
 
       <!-- Save button in edit mode -->
@@ -110,9 +112,9 @@
 
       <!-- Actions -->
       <div v-else class="flex gap-4 justify-end pt-2">
-        <UButton color="blue" @click="onEdit">Editovat</UButton>
-        <UButton color="red" @click="onDelete">Smazat</UButton>
-        <UButton color="green" @click="onPublish">Publikovat</UButton>
+        <UButton color="info" @click="onEdit">Editovat</UButton>
+        <UButton color="error" @click="onDelete">Smazat</UButton>
+        <UButton color="primary" @click="onPublish">Publikovat</UButton>
       </div>
     </div>
 
@@ -188,7 +190,7 @@ export default defineComponent({
     async saveArticle() {
       if (!this.article || !this.article.id) return
       if (!this.form.title.trim()) {
-        this.toast.add({ title: 'Název je povinný', description: 'Článek musí mít název.', color: 'red' })
+        this.toast.add({ title: 'Název je povinný', description: 'Článek musí mít název.', color: 'error' })
         return
       }
 
@@ -209,10 +211,10 @@ export default defineComponent({
         this.isEditing = false
         this.form.title = updated.title || ''
         this.form.content = updated.content || ''
-        this.toast.add({ title: 'Článek upraven', description: 'Změny byly úspěšně uloženy.', color: 'green' })
+        this.toast.add({ title: 'Článek upraven', description: 'Změny byly úspěšně uloženy.', color: 'primary' })
       } catch (e: any) {
         console.error(e)
-        this.toast.add({ title: 'Chyba při ukládání', description: e?.message || 'Nepodařilo se upravit článek.', color: 'red' })
+        this.toast.add({ title: 'Chyba při ukládání', description: e?.message || 'Nepodařilo se upravit článek.', color: 'error' })
       } finally {
         this.saving = false
       }
@@ -226,11 +228,11 @@ export default defineComponent({
       if (!this.article?.id) return
       try {
         await this.$articlesApi.deleteArticle({ id: this.article.id })
-        this.toast.add({ title: 'Článek smazán', color: 'green' })
+        this.toast.add({ title: 'Článek smazán', color: 'primary' })
         this.$router.push('/dashboard/articles')
       } catch (e: any) {
         console.error(e)
-        this.toast.add({ title: 'Chyba při mazání', description: e?.message || 'Nepodařilo se smazat článek.', color: 'red' })
+        this.toast.add({ title: 'Chyba při mazání', description: e?.message || 'Nepodařilo se smazat článek.', color: 'error' })
       }
     },
     async onPublish() {
@@ -247,10 +249,10 @@ export default defineComponent({
         const request = { id: this.article.id, updateArticleRequest: payload }
         const updated = await this.$articlesApi.updateArticle(request)
         this.article = updated
-        this.toast.add({ title: 'Článek publikován', color: 'green' })
+        this.toast.add({ title: 'Článek publikován', color: 'primary' })
       } catch (e: any) {
         console.error(e)
-        this.toast.add({ title: 'Chyba při publikaci', description: e?.message || 'Nepodařilo se publikovat článek.', color: 'red' })
+        this.toast.add({ title: 'Chyba při publikaci', description: e?.message || 'Nepodařilo se publikovat článek.', color: 'error' })
       }
     }
   },

@@ -125,14 +125,14 @@ export default defineComponent({
 
       const listCategoriesRequest: ListCategoriesRequest = {
         pageable: {
-          page: this.page,   // pokud backend chce 0-based → máš to stejně jako u articles
+          page: this.page,
           size: this.size
         }
       }
-
       this.$categoriesApi
           .listCategories(listCategoriesRequest)
           .then(res => {
+            console.log(res);
             // PaginatedCategoryResponse
             if (res.page !== undefined) {
               this.page = res.page

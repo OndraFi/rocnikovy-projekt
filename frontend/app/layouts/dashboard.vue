@@ -126,7 +126,9 @@ const logout = () => {
       </template>
 
       <template #body>
-        <slot />
+        <div class="relative">
+          <slot />
+        </div>
       </template>
     </UDashboardPanel>
 

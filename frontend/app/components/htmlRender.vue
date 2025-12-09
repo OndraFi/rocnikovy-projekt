@@ -1,7 +1,7 @@
 <template>
   <article>
     <div
-        class="prose prose-slate"
+        class="prose prose-slate max-w-full"
         v-html="safeHtml"
     />
   </article>
