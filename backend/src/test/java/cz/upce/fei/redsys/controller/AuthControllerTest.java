@@ -1,6 +1,7 @@
 package cz.upce.fei.redsys.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.upce.fei.redsys.domain.UserRole;
 import cz.upce.fei.redsys.dto.AuthDto.*;
 import cz.upce.fei.redsys.dto.UserDto.UserResponse;
 import cz.upce.fei.redsys.service.AuthService;
@@ -32,6 +33,7 @@ public class AuthControllerTest {
     private static final String TEST_FULLNAME = "Test User";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_PASS = "securePassword";
+    private static final UserRole TEST_ROLE =  UserRole.USER;
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,7 +47,7 @@ public class AuthControllerTest {
     @Test
     void register_ShouldReturnUserAnd200() throws Exception {
         RegisterRequest request = new RegisterRequest(TEST_USER, TEST_FULLNAME,TEST_EMAIL, TEST_PASS);
-        UserResponse mockUserResponse = new UserResponse(1L, TEST_USER, TEST_FULLNAME);
+        UserResponse mockUserResponse = new UserResponse(1L, TEST_USER, TEST_FULLNAME, TEST_ROLE);
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(mockUserResponse);
 
