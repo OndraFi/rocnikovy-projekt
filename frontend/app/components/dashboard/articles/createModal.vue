@@ -241,6 +241,7 @@ export default {
         });
 
         this.$emit('created', res);
+        this.$router.push('/dashboard/articles/'+res.id);
 
         // případný reset
         // this.form.title = '';

@@ -1,9 +1,9 @@
 <template>
-  <dashboard-settings-register-user v-if="canRegister"/>
+  <dashboard-settings-users-table />
+  <dashboard-settings-register-user v-if="authStore.isAdminOrChief()"/>
   <dashboard-settings-change-password class="mt-4"/>
 </template>
-<script>
-
+<script lang="ts">
 export default {
   setup(){
     setPageLayout('dashboard');
@@ -13,10 +13,5 @@ export default {
       authStore: useAuthStore(),
     }
   },
-  computed:{
-    canRegister(){
-      return this.authStore.user.role === 'ADMIN' || this.authStore.user.role === 'CHIEF_EDITOR';
-    }
-  }
 }
 </script>

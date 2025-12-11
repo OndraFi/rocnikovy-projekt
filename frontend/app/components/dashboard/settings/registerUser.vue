@@ -106,15 +106,16 @@ import type {
   UserResponse
 } from '~~/api';
 
-const toast = useToast();
 
 export default {
   name: 'RegisterUserForm',
 
   emits: ['registered'],
-
+  setup(){
+  },
   data() {
     return {
+      toast:  useToast(),
       form: {
         username: '',
         fullName: '',
@@ -183,7 +184,7 @@ export default {
       }
 
       if (!valid) {
-        toast.add({
+        this.toast.add({
           title: 'Formulář obsahuje chyby',
           color: 'error'
         });
@@ -206,7 +207,7 @@ export default {
             request
         );
 
-        toast.add({
+        this.toast.add({
           title: 'Uživatel byl úspěšně zaregistrován',
           color: 'success'
         });
@@ -216,7 +217,7 @@ export default {
       } catch (e: any) {
         console.error(e);
 
-        toast.add({
+        this.toast.add({
           title:
               e?.response?.data?.message ||
               e?.message ||

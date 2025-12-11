@@ -1,5 +1,22 @@
 <template>
-  <div>
+  <NuxtLayout>
+    <template #actions>
+      <dashboard-tickets-create-modal/>
+    </template>
+    <div class="flex justify-end pt-4 px-4 gap-x-4">
+        <UButton variant="outline"
+                :disabled="filter === ListMyTicketsFilterTypeEnum.Owned"
+                 @click="filterTickets(ListMyTicketsFilterTypeEnum.Owned)">Vlastněné
+        </UButton>
+        <UButton variant="outline"
+                 :disabled="filter === ListMyTicketsFilterTypeEnum.Assigned"
+                 @click="filterTickets(ListMyTicketsFilterTypeEnum.Assigned)">Přiřazené
+        </UButton>
+        <UButton variant="outline"
+                 :disabled="filter === ListMyTicketsFilterTypeEnum.All"
+                 @click="filterTickets(ListMyTicketsFilterTypeEnum.All)">Všechny
+        </UButton>
+    </div>
     <UTable
         :loading="fetching"
         loading-color="primary"
@@ -20,23 +37,29 @@
       />
     </div>
 
-  </div>
+  </NuxtLayout>
 </template>
 
 <script lang="ts">
-import { defineComponent, h } from 'vue'
-import type {
-  TicketResponse,
-  ListTicketsRequest,
-  UserResponse
+import {defineComponent, h} from 'vue'
+import {
+  type TicketResponse,
+  type ListTicketsRequest,
+  type UserResponse, ListMyTicketsFilterTypeEnum, type ListMyTicketsRequest
 } from '~~/api'
-import type { TableColumn } from '@nuxt/ui'
+import type {TableColumn} from '@nuxt/ui'
 
 export default defineComponent({
   name: 'TicketsPage',
+  computed: {
+    ListMyTicketsFilterTypeEnum() {
+      return ListMyTicketsFilterTypeEnum
+    }
+  },
 
   data() {
     return {
+      filter: 'ALL',
       tickets: [] as TicketResponse[],
       fetching: false,
 
@@ -84,7 +107,7 @@ export default defineComponent({
               td: 'text-center'
             }
           },
-          cell: ({ row }) => {
+          cell: ({row}) => {
             const state = row.getValue('state') as string | undefined
 
             if (!state) return '—'
@@ -125,7 +148,7 @@ export default defineComponent({
               td: 'text-left'
             }
           },
-          cell: ({ row }) => {
+          cell: ({row}) => {
             const user = row.getValue('author') as UserResponse | undefined
             if (!user) return '—'
             return user.fullName || user.username || `#${user.id}`
@@ -140,7 +163,7 @@ export default defineComponent({
               td: 'text-left'
             }
           },
-          cell: ({ row }) => {
+          cell: ({row}) => {
             const user = row.getValue('assignee') as UserResponse | undefined
             if (!user) return '—'
             return user.fullName || user.username || `#${user.id}`
@@ -155,7 +178,7 @@ export default defineComponent({
               td: 'text-center font-mono text-xs'
             }
           },
-          cell: ({ row }) => {
+          cell: ({row}) => {
             const raw = row.getValue('createdAt') as string | Date | undefined
             if (!raw) return '—'
             return new Date(raw).toLocaleString('cs-CZ', {
@@ -176,7 +199,7 @@ export default defineComponent({
               td: 'text-center font-mono text-xs'
             }
           },
-          cell: ({ row }) => {
+          cell: ({row}) => {
             const raw = row.getValue('updatedAt') as string | Date | undefined
             if (!raw) return '—'
             return new Date(raw).toLocaleString('cs-CZ', {
@@ -199,6 +222,16 @@ export default defineComponent({
   },
 
   methods: {
+    filterTickets(filter: ListMyTicketsFilterTypeEnum) {
+      this.filter = filter;
+      this.$router.replace({
+        query: {
+          ...this.$router.currentRoute.value.query,
+          filter
+        }
+      })
+      this.getTickets()
+    },
     // klik na řádek → detail ticketu
     onRowSelect(arg1: any, arg2?: any) {
       const row = arg2 && arg2.original ? arg2 : arg1
@@ -218,15 +251,16 @@ export default defineComponent({
     async getTickets() {
       this.fetching = true
 
-      const request: ListTicketsRequest = {
+      const request: ListMyTicketsRequest = {
         pageable: {
           page: this.page, // pokud backend chce 0-based a UI je 1-based, můžeš si tady hrát s -1/+1
           size: this.size
-        }
+        },
+        filterType: this.filter
       }
 
       this.$ticketsApi
-          .listTickets(request)
+          .listMyTickets(request)
           .then(res => {
             if (res.page !== undefined) this.page = res.page
             if (res.totalPages !== undefined) this.totalPages = res.totalPages
@@ -244,6 +278,7 @@ export default defineComponent({
   },
 
   created() {
+    this.filter = this.$route.query.filter
     this.getTickets()
   }
 })
