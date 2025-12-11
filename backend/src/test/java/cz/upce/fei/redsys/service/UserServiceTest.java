@@ -3,6 +3,7 @@ package cz.upce.fei.redsys.service;
 import cz.upce.fei.redsys.domain.User;
 import cz.upce.fei.redsys.domain.UserRole;
 import cz.upce.fei.redsys.repository.UserRepository;
+import cz.upce.fei.redsys.dto.UserDto.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -244,5 +245,48 @@ class UserServiceTest {
 
         assertThrows(AccessDeniedException.class,
                 () -> userService.requireUserByIdentifier(USERNAME));
+    }
+
+    // blockUser
+
+    @Test
+    void blockUser_ShouldBlockActiveUser() {
+        when(userRepository.findByUsername("john"))
+                .thenReturn(Optional.of(activeUser));
+
+        when(userRepository.save(any(User.class)))
+                .thenReturn(activeUser);
+
+        UserResponse result = userService.blockUser("john");
+
+        assertEquals(1L, result.id());
+        assertFalse(activeUser.isActive());
+        verify(userRepository).save(activeUser);
+    }
+
+    @Test
+    void blockUser_ShouldThrow_WhenUserNotFound() {
+        when(userRepository.findByUsername("missing"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(AccessDeniedException.class,
+                () -> userService.blockUser("missing"));
+    }
+
+    // unblockUser
+
+    @Test
+    void unblockUser_ShouldUnblockInactiveUser() {
+        when(userRepository.findByUsername("inactive"))
+                .thenReturn(Optional.of(inactiveUser));
+
+        when(userRepository.save(any(User.class)))
+                .thenReturn(inactiveUser);
+
+        UserResponse result = userService.unblockUser("inactive");
+
+        assertEquals(2L, result.id());
+        assertTrue(inactiveUser.isActive());
+        verify(userRepository).save(inactiveUser);
     }
 }

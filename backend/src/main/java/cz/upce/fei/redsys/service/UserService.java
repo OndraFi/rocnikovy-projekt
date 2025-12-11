@@ -1,9 +1,14 @@
 package cz.upce.fei.redsys.service;
 
 import cz.upce.fei.redsys.domain.User;
+import cz.upce.fei.redsys.dto.UserDto;
+import cz.upce.fei.redsys.dto.UserDto.UserResponse;
+import cz.upce.fei.redsys.dto.UserDto.PaginatedUserResponse;
 import cz.upce.fei.redsys.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -42,6 +47,25 @@ public class UserService implements UserDetailsService {
                 .password(user.getPassword())
                 .authorities(authorities)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public PaginatedUserResponse list(Pageable pageable) {
+        log.debug("Listing users: {}", pageable);
+        Page<User> page = userRepository.findAll(pageable);
+        List<UserResponse> users = page.getContent().stream()
+                .map(UserDto::toUserResponse)
+                .toList();
+
+        log.debug("Found {} users", users.size());
+
+        return new PaginatedUserResponse(
+                users,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
     }
 
     public Optional<User> findByUsername(String username) {
@@ -89,5 +113,19 @@ public class UserService implements UserDetailsService {
     public User requireUserByIdentifier(String identifier) {
         return findByIdentifier(identifier)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
+    }
+
+    @Transactional
+    public UserResponse blockUser(String identifier) {
+        User user = requireUserByIdentifier(identifier);
+        user.setActive(false);
+        return UserDto.toUserResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public UserResponse unblockUser(String identifier) {
+        User user = requireUserByIdentifier(identifier);
+        user.setActive(true);
+        return UserDto.toUserResponse(userRepository.save(user));
     }
 }
