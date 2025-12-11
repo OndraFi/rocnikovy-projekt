@@ -238,12 +238,13 @@ export default defineComponent({
     async onPublish() {
       if (!this.article?.id) return
       try {
+        const categories = [...this.article?.categories?.values()];
         const payload: UpdateArticleRequest = {
           title: this.article.title || '',
           content: this.article.content || '',
           articleState: 'PUBLISHED',
           publishedAt: this.article.publishedAt || new Date().toISOString(),
-          categoryIds: this.article.categories?.map(c => c.id) || [],
+          categoryIds: categories.map(c => c.id) || [],
           editorUsername: this.article.editor?.username
         }
         const request = { id: this.article.id, updateArticleRequest: payload }
