@@ -39,6 +39,14 @@ const links = [
       onSelect: () => {
         open.value = false
       }
+    },
+    {
+      label: 'Settings',
+      icon: 'i-lucide-settings',
+      to: '/dashboard/settings',
+      onSelect: () => {
+        open.value = false
+      }
     }
   ], 
   [
