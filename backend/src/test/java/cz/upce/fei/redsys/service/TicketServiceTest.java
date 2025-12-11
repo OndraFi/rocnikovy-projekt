@@ -1,9 +1,6 @@
 package cz.upce.fei.redsys.service;
 
-import cz.upce.fei.redsys.domain.Article;
-import cz.upce.fei.redsys.domain.Ticket;
-import cz.upce.fei.redsys.domain.TicketState;
-import cz.upce.fei.redsys.domain.User;
+import cz.upce.fei.redsys.domain.*;
 import cz.upce.fei.redsys.dto.TicketDto.CreateTicketRequest;
 import cz.upce.fei.redsys.dto.TicketDto.PaginatedTicketResponse;
 import cz.upce.fei.redsys.dto.TicketDto.UpdateTicketRequest;
@@ -166,5 +163,56 @@ public class TicketServiceTest {
                 ticketService.delete(TICKET_ID)
         );
         verify(ticketRepository, never()).delete(any());
+    }
+
+
+    @Test
+    void listMyTickets_ShouldUseAssigneeQuery_WhenFilterAssigned() {
+        when(authService.currentUser()).thenReturn(mockAssignee);
+
+        Page<Ticket> ticketPage = new PageImpl<>(List.of(mockTicket), pageable, 1L);
+        when(ticketRepository.findByAssignee(mockAssignee, pageable)).thenReturn(ticketPage);
+
+        PaginatedTicketResponse response = ticketService.listMyTickets(TicketFilterType.ASSIGNED, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.totalElements());
+        verify(ticketRepository, times(1)).findByAssignee(mockAssignee, pageable);
+        verify(ticketRepository, never()).findByAuthor(any(), any());
+        verify(ticketRepository, never()).findByAssigneeOrAuthor(any(), any(), any());
+    }
+
+    @Test
+    void listMyTickets_ShouldUseAuthorQuery_WhenFilterOwned() {
+        when(authService.currentUser()).thenReturn(mockAuthor);
+
+        Page<Ticket> ticketPage = new PageImpl<>(List.of(mockTicket), pageable, 1L);
+        when(ticketRepository.findByAuthor(mockAuthor, pageable)).thenReturn(ticketPage);
+
+        PaginatedTicketResponse response = ticketService.listMyTickets(TicketFilterType.OWNED, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.totalElements());
+        verify(ticketRepository, times(1)).findByAuthor(mockAuthor, pageable);
+        verify(ticketRepository, never()).findByAssignee(any(), any());
+        verify(ticketRepository, never()).findByAssigneeOrAuthor(any(), any(), any());
+    }
+
+    @Test
+    void listMyTickets_ShouldUseAssigneeOrAuthorQuery_WhenFilterAll() {
+        when(authService.currentUser()).thenReturn(mockAuthor);
+
+        Page<Ticket> ticketPage = new PageImpl<>(List.of(mockTicket), pageable, 1L);
+        when(ticketRepository.findByAssigneeOrAuthor(mockAuthor, mockAuthor, pageable))
+                .thenReturn(ticketPage);
+
+        PaginatedTicketResponse response = ticketService.listMyTickets(TicketFilterType.ALL, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.totalElements());
+        verify(ticketRepository, times(1))
+                .findByAssigneeOrAuthor(mockAuthor, mockAuthor, pageable);
+        verify(ticketRepository, never()).findByAssignee(any(), any());
+        verify(ticketRepository, never()).findByAuthor(any(), any());
     }
 }
