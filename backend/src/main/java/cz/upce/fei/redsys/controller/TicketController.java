@@ -1,5 +1,6 @@
 package cz.upce.fei.redsys.controller;
 
+import cz.upce.fei.redsys.domain.TicketFilterType;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ErrorDto.ValidationErrorResponse;
 import cz.upce.fei.redsys.dto.TicketDto.TransitionTicketRequest;
@@ -63,6 +64,25 @@ public class TicketController {
         TicketResponse created = ticketService.create(req);
         return ResponseEntity.created(URI.create("/tickets/" + created.id()))
                 .body(created);
+    }
+
+    @Operation(
+            summary = "List my tickets",
+            description = "List tickets assigned to me or owned by me, filterable by type",
+            operationId = "listMyTickets"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Tickets found",
+                    content = @Content(schema = @Schema(implementation = PaginatedTicketResponse.class)))
+    })
+    @GetMapping("/my")
+    @CanViewTicket
+    public ResponseEntity<PaginatedTicketResponse> listMyTickets(
+            @RequestParam(name = "filterType", defaultValue = "ALL") TicketFilterType filterType,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        log.debug("GET /api/tickets/my?filterType={}: {}", filterType, pageable);
+        return ResponseEntity.ok(ticketService.listMyTickets(filterType, pageable));
     }
 
     @Operation(summary = "List tickets", description = "List tickets with pagination", operationId = "listTickets")
@@ -135,4 +155,6 @@ public class TicketController {
         ticketService.delete(ticketId);
         return ResponseEntity.noContent().build();
     }
+
+
 }

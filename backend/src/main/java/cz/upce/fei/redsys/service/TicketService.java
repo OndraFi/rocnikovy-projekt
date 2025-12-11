@@ -1,9 +1,6 @@
 package cz.upce.fei.redsys.service;
 
-import cz.upce.fei.redsys.domain.Article;
-import cz.upce.fei.redsys.domain.Ticket;
-import cz.upce.fei.redsys.domain.TicketState;
-import cz.upce.fei.redsys.domain.User;
+import cz.upce.fei.redsys.domain.*;
 import cz.upce.fei.redsys.dto.TicketDto;
 import cz.upce.fei.redsys.dto.TicketDto.CreateTicketRequest;
 import cz.upce.fei.redsys.dto.TicketDto.TicketResponse;
@@ -80,6 +77,32 @@ public class TicketService {
         TicketResponse response = toTicketResponse(ticket);
         log.debug("Ticket found: {}", response);
         return response;
+    }
+
+    public PaginatedTicketResponse listMyTickets(TicketFilterType filterType, Pageable pageable) {
+        log.debug("Listing my tickets, filterType={}, pageable={}", filterType, pageable);
+
+        User currentUser = authService.currentUser();
+
+        Page<Ticket> ticketPage = switch (filterType) {
+            case ASSIGNED -> ticketRepository.findByAssignee(currentUser, pageable);
+            case OWNED -> ticketRepository.findByAuthor(currentUser, pageable);
+            case ALL -> ticketRepository.findByAssigneeOrAuthor(currentUser, currentUser, pageable);
+        };
+
+        List<TicketResponse> ticketResponses = ticketPage.getContent().stream()
+                .map(TicketDto::toTicketResponse)
+                .toList();
+
+        log.debug("Found {} tickets for user {}", ticketResponses.size(), currentUser.getUsername());
+
+        return new PaginatedTicketResponse(
+                ticketResponses,
+                ticketPage.getNumber(),
+                ticketPage.getSize(),
+                ticketPage.getTotalElements(),
+                ticketPage.getTotalPages()
+        );
     }
 
     @Transactional
