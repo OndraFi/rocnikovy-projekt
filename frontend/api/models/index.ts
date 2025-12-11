@@ -18,6 +18,7 @@ export * from './PaginatedArticleVersionResponse';
 export * from './PaginatedCategoryResponse';
 export * from './PaginatedTicketCommentResponse';
 export * from './PaginatedTicketResponse';
+export * from './PaginatedUserResponse';
 export * from './PasswordChangeRequest';
 export * from './PasswordResetCodeResponse';
 export * from './PasswordResetConfirmRequest';

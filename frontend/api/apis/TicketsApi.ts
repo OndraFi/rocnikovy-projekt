@@ -60,6 +60,11 @@ export interface GetTicketRequest {
     ticketId: number;
 }
 
+export interface ListMyTicketsRequest {
+    pageable: Pageable;
+    filterType?: ListMyTicketsFilterTypeEnum;
+}
+
 export interface ListTicketsRequest {
     pageable: Pageable;
 }
@@ -274,6 +279,60 @@ export class TicketsApi extends runtime.BaseAPI {
     }
 
     /**
+     * List tickets assigned to me or owned by me, filterable by type
+     * List my tickets
+     */
+    async listMyTicketsRaw(requestParameters: ListMyTicketsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PaginatedTicketResponse>> {
+        if (requestParameters['pageable'] == null) {
+            throw new runtime.RequiredError(
+                'pageable',
+                'Required parameter "pageable" was null or undefined when calling listMyTickets().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['filterType'] != null) {
+            queryParameters['filterType'] = requestParameters['filterType'];
+        }
+
+        if (requestParameters['pageable'] != null) {
+            queryParameters['pageable'] = requestParameters['pageable'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/tickets/my`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PaginatedTicketResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * List tickets assigned to me or owned by me, filterable by type
+     * List my tickets
+     */
+    async listMyTickets(requestParameters: ListMyTicketsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PaginatedTicketResponse> {
+        const response = await this.listMyTicketsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * List tickets with pagination
      * List tickets
      */
@@ -381,3 +440,13 @@ export class TicketsApi extends runtime.BaseAPI {
     }
 
 }
+
+/**
+ * @export
+ */
+export const ListMyTicketsFilterTypeEnum = {
+    Assigned: 'ASSIGNED',
+    Owned: 'OWNED',
+    All: 'ALL'
+} as const;
+export type ListMyTicketsFilterTypeEnum = typeof ListMyTicketsFilterTypeEnum[keyof typeof ListMyTicketsFilterTypeEnum];

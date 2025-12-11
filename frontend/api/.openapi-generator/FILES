@@ -1,9 +1,11 @@
+.openapi-generator-ignore
 apis/ArticleVersionsApi.ts
 apis/ArticlesApi.ts
 apis/AuthenticationApi.ts
 apis/CategoriesApi.ts
 apis/TicketCommentsApi.ts
 apis/TicketsApi.ts
+apis/UsersApi.ts
 apis/index.ts
 docs/ArticleDetailResponse.md
 docs/ArticleResponse.md
@@ -27,6 +29,7 @@ docs/PaginatedArticleVersionResponse.md
 docs/PaginatedCategoryResponse.md
 docs/PaginatedTicketCommentResponse.md
 docs/PaginatedTicketResponse.md
+docs/PaginatedUserResponse.md
 docs/PasswordChangeRequest.md
 docs/PasswordResetCodeResponse.md
 docs/PasswordResetConfirmRequest.md
@@ -42,6 +45,7 @@ docs/UpdateCategoryRequest.md
 docs/UpdateTicketCommentRequest.md
 docs/UpdateTicketRequest.md
 docs/UserResponse.md
+docs/UsersApi.md
 docs/ValidationErrorResponse.md
 index.ts
 models/ArticleDetailResponse.ts
@@ -62,6 +66,7 @@ models/PaginatedArticleVersionResponse.ts
 models/PaginatedCategoryResponse.ts
 models/PaginatedTicketCommentResponse.ts
 models/PaginatedTicketResponse.ts
+models/PaginatedUserResponse.ts
 models/PasswordChangeRequest.ts
 models/PasswordResetCodeResponse.ts
 models/PasswordResetConfirmRequest.ts

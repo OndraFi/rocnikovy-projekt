@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import {jwtDecode} from 'jwt-decode';
 import type {UserResponse} from "~~/api";
+import {UserResponseRoleEnum} from "~~/api";
 
 interface TokenPayload {
     exp: number;
@@ -54,7 +55,10 @@ export const useAuthStore = defineStore('authStore', {
         },
         setUser(user: UserResponse){
             this.user = user;
-        }
+        },
+        isAdminOrChief(): boolean {
+            return this?.user?.role === UserResponseRoleEnum.Admin || this?.user?.role === UserResponseRoleEnum.ChiefEditor;
+        },
     },
     persist: true,
 })

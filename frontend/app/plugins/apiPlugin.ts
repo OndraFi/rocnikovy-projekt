@@ -11,6 +11,7 @@ import {
     TicketCommentsApi
 } from '../../api';
 import type {ComponentCustomProperties} from "vue";
+import {UsersApi} from "~~/api";
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
@@ -20,6 +21,7 @@ declare module '@vue/runtime-core' {
         $categoriesApi: CategoriesApi;
         $ticketsApi: TicketsApi;
         $ticketCommentsApi: TicketCommentsApi;
+        $usersApi: UsersApi;
     }
 }
 //
@@ -50,6 +52,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const categoriesApi = new CategoriesApi(config);
     const ticketsApi = new TicketsApi(config);
     const ticketCommentsApi = new TicketCommentsApi(config);
+    const usersApi = new UsersApi(config);
 
     vueApp.config.globalProperties.$articlesApi = articlesApi;
     vueApp.config.globalProperties.$articlesVersionsApi = articlesVersionsApi;
@@ -57,4 +60,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     vueApp.config.globalProperties.$categoriesApi = categoriesApi;
     vueApp.config.globalProperties.$ticketsApi = ticketsApi;
     vueApp.config.globalProperties.$ticketCommentsApi = ticketCommentsApi;
+    vueApp.config.globalProperties.$usersApi = usersApi;
 });

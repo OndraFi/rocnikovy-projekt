@@ -6,3 +6,4 @@ export * from './AuthenticationApi';
 export * from './CategoriesApi';
 export * from './TicketCommentsApi';
 export * from './TicketsApi';
+export * from './UsersApi';

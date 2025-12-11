@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <NuxtLayout>
+    <template #actions>
+      <dashboard-articles-create-modal/>
+    </template>
     <UTable
         :loading="fetching"
         loading-color="primary"
@@ -20,7 +23,7 @@
           @update:page="onPageChange"
       />
     </div>
-  </div>
+  </NuxtLayout>
 </template>
 
 <script lang="ts">

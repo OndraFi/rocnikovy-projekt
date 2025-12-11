@@ -183,7 +183,9 @@ export default defineComponent({
       try {
         const request: GetArticleRequest = { id }
         const res = await this.$articlesApi.getArticle(request)
+        console.log(res);
         this.article = res || null
+        console.log(this.article)
       } catch (e: any) {
         console.error(e)
         this.error = e?.message || 'Nepodařilo se načíst článek.'
