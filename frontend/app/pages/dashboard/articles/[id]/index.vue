@@ -8,7 +8,6 @@
         article?.articleState == ArticleDetailResponseArticleStateEnum.InReview
         ">
         <UButton color="info" @click="onEdit">Editovat</UButton>
-        <UButton color="info" @click="setReview">Ke schválení</UButton>
       </template>
 
       <!-- Chief actions -->
@@ -18,7 +17,6 @@
         ">
         <UButton v-if="article?.articleState == ArticleDetailResponseArticleStateEnum.Published" color="info" @click="setReview">Koncept</UButton>
         <template v-if="article?.articleState == ArticleDetailResponseArticleStateEnum.InReview">
-          <UButton color="info" @click="setReview">K oprave</UButton>
           <UButton color="primary" @click="onPublish">Publikace</UButton>
         </template>
         <UButton color="error" @click="onDelete">Smazat</UButton>
