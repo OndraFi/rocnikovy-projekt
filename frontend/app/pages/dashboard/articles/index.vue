@@ -1,7 +1,7 @@
 <template>
   <NuxtLayout>
     <template #actions>
-      <dashboard-articles-create-modal/>
+      <dashboard-articles-create-modal v-if="authStore.user?.role == UserResponseRoleEnum.Admin || authStore.user?.role == UserResponseRoleEnum.ChiefEditor" />
     </template>
     <UTable
         :loading="fetching"
@@ -28,13 +28,15 @@
 
 <script lang="ts">
 import { defineComponent, h } from 'vue';
-import type {ArticleResponse, CategoryResponse, ListArticlesRequest} from '~~/api';
+import {UserResponseRoleEnum, type ArticleResponse, type CategoryResponse, type ListArticlesRequest} from '~~/api';
 import type { TableColumn } from '@nuxt/ui';
 
 export default defineComponent({
   name: 'ArticlesPage',
   data() {
     return {
+      UserResponseRoleEnum,
+      authStore: useAuthStore(),
       articles: [] as Array<ArticleResponse>,
       fetching: false,
       page: 0,

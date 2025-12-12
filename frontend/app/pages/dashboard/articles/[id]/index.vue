@@ -1,11 +1,21 @@
 <template>
   <NuxtLayout>
     <template #actions>
-      <template v-if="authStore.user?.role == UserResponseRoleEnum.Editor && article?.articleState == ArticleDetailResponseArticleStateEnum.InReview">
+      <!-- Editor actions -->
+      <template v-if="
+        authStore.user?.role == UserResponseRoleEnum.Editor && 
+        authStore.user?.id == article?.editor?.id &&
+        article?.articleState == ArticleDetailResponseArticleStateEnum.InReview
+        ">
         <UButton color="info" @click="onEdit">Editovat</UButton>
         <UButton color="info" @click="setReview">Ke schválení</UButton>
       </template>
-      <template v-if="authStore.user?.role == UserResponseRoleEnum.ChiefEditor">
+
+      <!-- Chief actions -->
+      <template v-if="
+        authStore.user?.role == UserResponseRoleEnum.ChiefEditor &&
+        authStore.user?.id == article?.author?.id
+        ">
         <UButton v-if="article?.articleState == ArticleDetailResponseArticleStateEnum.Published" color="info" @click="setReview">Koncept</UButton>
         <template v-if="article?.articleState == ArticleDetailResponseArticleStateEnum.InReview">
           <UButton color="info" @click="setReview">K oprave</UButton>
@@ -13,6 +23,8 @@
         </template>
         <UButton color="error" @click="onDelete">Smazat</UButton>
       </template>
+
+      <!-- Admin action -->
       <template v-if="authStore.user?.role == UserResponseRoleEnum.Admin">
         <UButton color="info" @click="onEdit">Editovat</UButton>
         <UButton color="error" @click="onDelete">Smazat</UButton>
