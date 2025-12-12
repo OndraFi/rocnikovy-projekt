@@ -1,13 +1,16 @@
 <template>
   <NuxtLayout>
     <template #actions>
-      <UButton color="info" @click="onEdit">Editovat</UButton>
-      <UButton color="info" @click="setReview">Zkontrolovat</UButton>
-      <UButton color="primary" @click="onPublish">Publikovat</UButton>
-      <UButton color="error" @click="onDelete">Smazat</UButton>
+      <template v-if="authStore.user?.role == UserResponseRoleEnum.Editor || authStore.user?.role == UserResponseRoleEnum.Admin">
+        <UButton color="info" @click="onEdit">Editovat</UButton>
+      </template>
+      <template v-if="authStore.user?.role == UserResponseRoleEnum.ChiefEditor || authStore.user?.role == UserResponseRoleEnum.Admin">
+        <UButton color="info" @click="setReview">Zkontrolovat</UButton>
+        <UButton color="primary" @click="onPublish">Publikovat</UButton>
+        <UButton color="error" @click="onDelete">Smazat</UButton>
+      </template>
     </template>
     <div class="p-6 space-y-6">
-
       <!-- Loading skeleton -->
       <div v-if="loading" class="space-y-3">
         <USkeleton class="h-7 w-48"/>
@@ -142,10 +145,12 @@
   </NuxtLayout>
 </template>
 
+
 <script lang="ts">
 import { defineComponent } from 'vue';
-import type { ArticleResponse, GetArticleRequest, UpdateArticleRequest } from '~~/api';
+import { UserResponseRoleEnum, type ArticleResponse, type GetArticleRequest, type UpdateArticleRequest } from '~~/api';
 import UserSelect from "~/components/dashboard/userSelect.vue";
+
 
 export default defineComponent({
   name: 'ArticleDetailPage',
@@ -164,7 +169,9 @@ export default defineComponent({
         author: null,
         editor: null,
         categories: [] as Array<number>,
-      }
+      },
+      authStore: useAuthStore(),
+      UserResponseRoleEnum
     }
   },
 

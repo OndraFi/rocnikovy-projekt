@@ -51,6 +51,30 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(user);
         }
 
+        user = User.builder()
+                .username("editor")
+                .fullName("editor user")
+                .email("editor@gmail.com")
+                .password(hashedPassword)
+                .role(UserRole.EDITOR)
+                .build();
+        if (userRepository.findByUsername("editor").isEmpty()) {
+            log.info("Creating user {}", user.getEmail());
+            userRepository.save(user);
+        }
+
+        user = User.builder()
+                .username("chief")
+                .fullName("chief user")
+                .email("chief@gmail.com")
+                .password(hashedPassword)
+                .role(UserRole.CHIEF_EDITOR)
+                .build();
+        if (userRepository.findByUsername("chief").isEmpty()) {
+            log.info("Creating user {}", user.getEmail());
+            userRepository.save(user);
+        }
+
         List<User> users = userRepository.findAll();
         log.info("Found {} users", users.size());
         log.info("First user {}", users.getFirst());
