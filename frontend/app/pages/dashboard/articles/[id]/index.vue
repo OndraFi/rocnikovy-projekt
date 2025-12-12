@@ -1,12 +1,20 @@
 <template>
   <NuxtLayout>
     <template #actions>
-      <template v-if="authStore.user?.role == UserResponseRoleEnum.Editor || authStore.user?.role == UserResponseRoleEnum.Admin">
+      <template v-if="authStore.user?.role == UserResponseRoleEnum.Editor && article?.articleState == ArticleDetailResponseArticleStateEnum.InReview">
         <UButton color="info" @click="onEdit">Editovat</UButton>
+        <UButton color="info" @click="setReview">Ke schválení</UButton>
       </template>
-      <template v-if="authStore.user?.role == UserResponseRoleEnum.ChiefEditor || authStore.user?.role == UserResponseRoleEnum.Admin">
-        <UButton color="info" @click="setReview">Zkontrolovat</UButton>
-        <UButton color="primary" @click="onPublish">Publikovat</UButton>
+      <template v-if="authStore.user?.role == UserResponseRoleEnum.ChiefEditor">
+        <UButton v-if="article?.articleState == ArticleDetailResponseArticleStateEnum.Published" color="info" @click="setReview">Koncept</UButton>
+        <template v-if="article?.articleState == ArticleDetailResponseArticleStateEnum.InReview">
+          <UButton color="info" @click="setReview">K oprave</UButton>
+          <UButton color="primary" @click="onPublish">Publikace</UButton>
+        </template>
+        <UButton color="error" @click="onDelete">Smazat</UButton>
+      </template>
+      <template v-if="authStore.user?.role == UserResponseRoleEnum.Admin">
+        <UButton color="info" @click="onEdit">Editovat</UButton>
         <UButton color="error" @click="onDelete">Smazat</UButton>
       </template>
     </template>
@@ -148,7 +156,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { UserResponseRoleEnum, type ArticleResponse, type GetArticleRequest, type UpdateArticleRequest } from '~~/api';
+import { ArticleDetailResponseArticleStateEnum, UpdateArticleRequestArticleStateEnum, UserResponseRoleEnum, type ArticleResponse, type GetArticleRequest, type UpdateArticleRequest } from '~~/api';
 import UserSelect from "~/components/dashboard/userSelect.vue";
 
 
@@ -171,7 +179,8 @@ export default defineComponent({
         categories: [] as Array<number>,
       },
       authStore: useAuthStore(),
-      UserResponseRoleEnum
+      UserResponseRoleEnum,
+      ArticleDetailResponseArticleStateEnum
     }
   },
 
@@ -302,7 +311,7 @@ export default defineComponent({
         const payload: UpdateArticleRequest = {
           title: this.article.title || '',
           content: this.article.content || '',
-          articleState: 'IN_REVIEW',
+          articleState: UpdateArticleRequestArticleStateEnum.InReview,
           publishedAt: this.article.publishedAt || new Date().toISOString(),
           categoryIds: categories.map(c => c.id) || [],
           editorUsername: this.article.editor?.username
