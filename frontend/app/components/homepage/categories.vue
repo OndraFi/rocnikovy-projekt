@@ -25,9 +25,10 @@
 
         <!-- Reálné kategorie -->
         <template v-else>
-          <div
+          <NuxtLink
               v-for="c in categories"
               :key="c.id || c.name"
+              :to="`/category/${c.id}`"
               class="group cursor-pointer bg-white rounded-xl p-6 text-center hover:shadow-xl transition-all border border-gray-200 hover:border-transparent"
           >
             <div
@@ -37,7 +38,7 @@
             </div>
             <h3 class="mb-1">{{ c.name }}</h3>
             <p class="text-sm text-gray-500">{{ c.description }}</p>
-          </div>
+          </NuxtLink>
         </template>
 
       </div>

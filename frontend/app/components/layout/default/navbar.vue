@@ -11,13 +11,20 @@
 
         <!-- Desktop menu -->
         <div class="hidden lg:flex items-center gap-8">
-          <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Zprávy</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Ekonomika</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Sport</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Kultura</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Technologie</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-blue-600 transition-colors">Názory</NuxtLink>
-          <NuxtLink v-if="authStore.isLoggedIn()"  to="/dashboard" class="px-2 py-2 rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 hover:text-blue-600 transition-colors">
+          <NuxtLink
+              v-for="cat in categories"
+              :key="cat.id"
+              :to="cat.id != null ? `/category/${cat.id}` : '#'"
+              class="text-gray-700 hover:text-blue-600 transition-colors"
+          >
+            {{ cat.name || 'Kategorie' }}
+          </NuxtLink>
+
+          <NuxtLink
+              v-if="authStore.isLoggedIn()"
+              to="/dashboard"
+              class="px-2 py-2 rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+          >
             Dashboard
           </NuxtLink>
         </div>
@@ -46,7 +53,6 @@
                 class="w-5 h-5 text-gray-600"
             />
           </UButton>
-
         </div>
       </div>
 
@@ -56,25 +62,22 @@
           class="lg:hidden pb-4 border-t border-gray-200"
       >
         <div class="flex flex-col gap-1 pt-3">
-          <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
-            Zprávy
+          <NuxtLink
+              v-for="cat in categories"
+              :key="cat.id"
+              :to="cat.id != null ? `/category/${cat.id}` : '#'"
+              class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+              @click="isMobileMenuOpen = false"
+          >
+            {{ cat.name || 'Kategorie' }}
           </NuxtLink>
-          <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
-            Ekonomika
-          </NuxtLink>
-          <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
-            Sport
-          </NuxtLink>
-          <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
-            Kultura
-          </NuxtLink>
-          <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
-            Technologie
-          </NuxtLink>
-          <NuxtLink to="#" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
-            Názory
-          </NuxtLink>
-          <NuxtLink v-if="authStore.isLoggedIn()"  to="/dashboard" class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors">
+
+          <NuxtLink
+              v-if="authStore.isLoggedIn()"
+              to="/dashboard"
+              class="px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+              @click="isMobileMenuOpen = false"
+          >
             Dashboard
           </NuxtLink>
         </div>
@@ -84,13 +87,20 @@
 </template>
 
 <script lang="ts">
+import type {
+  CategoryResponse,
+  ListCategoriesRequest,
+  PaginatedCategoryResponse
+} from '~~/api'
+
 export default {
   name: 'Navigation',
 
   data() {
     return {
       authStore: useAuthStore(),
-      isMobileMenuOpen: false as boolean
+      isMobileMenuOpen: false as boolean,
+      categories: [] as CategoryResponse[]
     }
   },
 
@@ -98,9 +108,32 @@ export default {
     onSearch() {
       console.log('Search click')
     },
+
     toggleMobileMenu() {
       this.isMobileMenuOpen = !this.isMobileMenuOpen
+    },
+
+    async fetchCategories() {
+      const request: ListCategoriesRequest = {
+        pageable: {
+          page: 0,
+          size: 5,
+          sort: ['name,asc']
+        }
+      }
+
+      try {
+        const res: PaginatedCategoryResponse = await (this as any).$categoriesApi.listCategories(request)
+        this.categories = res.categories || []
+      } catch (e: any) {
+        console.error('Failed to load categories for nav:', e)
+        this.categories = []
+      }
     }
+  },
+
+  mounted() {
+    this.fetchCategories()
   }
 }
 </script>

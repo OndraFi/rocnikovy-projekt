@@ -54,6 +54,7 @@ export interface GetArticleRequest {
 
 export interface ListArticlesRequest {
     pageable: Pageable;
+    categoryIds?: Array<number>;
 }
 
 export interface UpdateArticleOperationRequest {
@@ -209,7 +210,7 @@ export class ArticlesApi extends runtime.BaseAPI {
     }
 
     /**
-     * List articles with pagination
+     * List articles with pagination and optional category filter
      * List articles
      */
     async listArticlesRaw(requestParameters: ListArticlesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PaginatedArticleResponse>> {
@@ -224,6 +225,10 @@ export class ArticlesApi extends runtime.BaseAPI {
 
         if (requestParameters['pageable'] != null) {
             queryParameters['pageable'] = requestParameters['pageable'];
+        }
+
+        if (requestParameters['categoryIds'] != null) {
+            queryParameters['categoryIds'] = requestParameters['categoryIds'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -250,7 +255,7 @@ export class ArticlesApi extends runtime.BaseAPI {
     }
 
     /**
-     * List articles with pagination
+     * List articles with pagination and optional category filter
      * List articles
      */
     async listArticles(requestParameters: ListArticlesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PaginatedArticleResponse> {
