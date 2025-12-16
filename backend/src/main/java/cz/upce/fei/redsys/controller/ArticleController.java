@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/articles", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -80,9 +81,9 @@ public class ArticleController {
     @GetMapping
     public ResponseEntity<PaginatedArticleResponse> list(
             @PageableDefault(size = 20) Pageable pageable,
-            @RequestParam(required = false) @Parameter(description = "Filter by category ID") Long categoryId) {
-        log.debug("GET /api/articles: pageable={}, categoryId={}", pageable, categoryId);
-        return ResponseEntity.ok(articleService.list(pageable, categoryId));
+            @RequestParam(required = false) @Parameter(description = "Filter by category IDs (can be multiple)") List<Long> categoryIds) {
+        log.debug("GET /api/articles: pageable={}, categoryIds={}", pageable, categoryIds);
+        return ResponseEntity.ok(articleService.list(pageable, categoryIds));
     }
 
     @Operation(summary = "Update article", description = "Update article fields", operationId = "updateArticle")

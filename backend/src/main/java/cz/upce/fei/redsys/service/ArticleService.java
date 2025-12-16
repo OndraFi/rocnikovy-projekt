@@ -68,14 +68,13 @@ public class ArticleService {
         ArticleVersion latestVersion = articleVersionService.getLatestVersion(article);
         return ArticleDto.toDetailResponse(article, latestVersion.getContent(), latestVersion.getVersionNumber());
     }
-
-    public PaginatedArticleResponse list(Pageable pageable, Long categoryId) {
-        log.debug("Listing articles: pageable={}, categoryId={}", pageable, categoryId);
+    public PaginatedArticleResponse list(Pageable pageable, List<Long> categoryIds) {
+        log.debug("Listing articles: pageable={}, categoryIds={}", pageable, categoryIds);
 
         Page<Article> page;
-        if (categoryId != null) {
-            log.debug("Listing with filter");
-            page = articleRepository.findByCategories_Id(categoryId, pageable);
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            log.debug("Listing with filter for categories: {}", categoryIds);
+            page = articleRepository.findByCategories_IdIn(categoryIds, pageable);
         } else {
             log.debug("Listing without filter");
             page = articleRepository.findAll(pageable);
