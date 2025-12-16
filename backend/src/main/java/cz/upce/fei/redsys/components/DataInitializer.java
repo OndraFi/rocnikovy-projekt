@@ -51,7 +51,7 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(user);
         }
 
-        user = User.builder()
+        User editorUser = User.builder()
                 .username("editor")
                 .fullName("editor user")
                 .email("editor@gmail.com")
@@ -59,8 +59,8 @@ public class DataInitializer implements CommandLineRunner {
                 .role(UserRole.EDITOR)
                 .build();
         if (userRepository.findByUsername("editor").isEmpty()) {
-            log.info("Creating user {}", user.getEmail());
-            userRepository.save(user);
+            log.info("Creating user {}", editorUser.getEmail());
+            userRepository.save(editorUser);
         }
 
         user = User.builder()
@@ -94,16 +94,18 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Creating category {}", c2.getName());
             categoryRepository.save(c2);
         }
-        Set<Category> categories = new HashSet<>();
-        categories.add(c1);
-        categories.add(c2);
+        Set<Category> categoriesSport = new HashSet<>();
+        categoriesSport.add(c1);
+
+        Set<Category> economyCategories = new HashSet<>();
+        economyCategories.add(c2);
 
         Article article1 = new Article();
         article1.setTitle("Football News");
         article1.setArticleState(ArticleState.PUBLISHED);
-        article1.setCategories(categories);
+        article1.setCategories(categoriesSport);
         article1.setAuthor(user);
-        article1.setEditor(null);
+        article1.setEditor(editorUser);
         article1.setPublishedAt(Instant.now());
         if (!articleRepository.existsById(1L)) { // pokud není žádný článek, vytvoříme jeden
             log.info("Creating articel {}", article1.getTitle());
@@ -138,9 +140,9 @@ public class DataInitializer implements CommandLineRunner {
                 Article article = new Article();
                 article.setTitle("Ekonomy News");
                 article.setArticleState(ArticleState.PUBLISHED);
-                article.setCategories(categories);
+                article.setCategories(economyCategories);
                 article.setAuthor(user);
-                article.setEditor(null);
+                article.setEditor(editorUser);
                 article.setPublishedAt(Instant.now());
                 log.info("Creating articel {}", article.getTitle());
                 article.setTitle("Ekonomy News " + (i + 1));

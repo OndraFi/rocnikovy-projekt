@@ -237,11 +237,11 @@ example().catch(console.error);
 
 ## listArticles
 
-> PaginatedArticleResponse listArticles(pageable)
+> PaginatedArticleResponse listArticles(pageable, categoryIds)
 
 List articles
 
-List articles with pagination
+List articles with pagination and optional category filter
 
 ### Example
 
@@ -263,6 +263,8 @@ async function example() {
   const body = {
     // Pageable
     pageable: ...,
+    // Array<number> | Filter by category IDs (can be multiple) (optional)
+    categoryIds: ...,
   } satisfies ListArticlesRequest;
 
   try {
@@ -283,6 +285,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **pageable** | [](.md) |  | [Defaults to `undefined`] |
+| **categoryIds** | `Array<number>` | Filter by category IDs (can be multiple) | [Optional] |
 
 ### Return type
 
