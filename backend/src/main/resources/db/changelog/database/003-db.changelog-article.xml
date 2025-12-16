@@ -6,9 +6,6 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ============================================= -->
-    <!--  ARTICLES TABLE                               -->
-    <!-- ============================================= -->
     <changeSet id="create-articles-table" author="system">
         <preConditions onFail="HALT">
             <tableExists tableName="users"/>
@@ -50,9 +47,6 @@
                 constraintName="fk_articles_editor"/>
     </changeSet>
 
-    <!-- ============================================= -->
-    <!--  ARTICLE <-> CATEGORY MANY-TO-MANY TABLE      -->
-    <!-- ============================================= -->
     <changeSet id="create-article-categories-table" author="system">
         <createTable tableName="article_categories">
             <column name="article_id" type="BIGINT">

@@ -6,9 +6,6 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ====================================================== -->
-    <!--  INSERT ADMIN USER                                     -->
-    <!-- ====================================================== -->
     <changeSet id="init-user-admin" author="dominik">
         <preConditions onFail="MARK_RAN">
                 <tableExists tableName="users"/>
@@ -25,9 +22,6 @@
         </insert>
     </changeSet>
 
-    <!-- ====================================================== -->
-    <!--  INSERT CATEGORIES                                     -->
-    <!-- ====================================================== -->
     <changeSet id="init-categories" author="dominik">
         <preConditions onFail="MARK_RAN">
                 <tableExists tableName="categories"/>
@@ -46,15 +40,11 @@
         </insert>
     </changeSet>
 
-    <!-- ====================================================== -->
-    <!--  INSERT INITIAL ARTICLES                               -->
-    <!-- ====================================================== -->
     <changeSet id="init-articles" author="dominik">
         <preConditions onFail="MARK_RAN">
                 <tableExists tableName="articles"/>
         </preConditions>
 
-        <!-- Article 1 -->
         <insert tableName="articles">
             <column name="id" valueNumeric="1"/>
             <column name="version" valueNumeric="0"/>
@@ -64,7 +54,6 @@
             <column name="published_at" valueDate="NOW()"/>
         </insert>
 
-        <!-- 5x Ekonomy News -->
         <insert tableName="articles">
             <column name="id" valueNumeric="2"/>
             <column name="version" valueNumeric="0"/>
@@ -107,15 +96,11 @@
         </insert>
     </changeSet>
 
-    <!-- ====================================================== -->
-    <!--  ASSIGN CATEGORIES TO ARTICLES                        -->
-    <!-- ====================================================== -->
     <changeSet id="init-article-categories" author="dominik">
         <preConditions onFail="MARK_RAN">
                 <tableExists tableName="article_categories"/>
         </preConditions>
 
-        <!-- Article 1 → Sport + Ekonomika -->
         <insert tableName="article_categories">
             <column name="article_id" valueNumeric="1"/>
             <column name="category_id" valueNumeric="1"/>
@@ -125,7 +110,6 @@
             <column name="category_id" valueNumeric="2"/>
         </insert>
 
-        <!-- Articles 2–6 → both categories -->
         <insert tableName="article_categories">
             <column name="article_id" valueNumeric="2"/>
             <column name="category_id" valueNumeric="1"/>
@@ -168,15 +152,11 @@
         </insert>
     </changeSet>
 
-    <!-- ====================================================== -->
-    <!--  INSERT FIRST ARTICLE VERSIONS                        -->
-    <!-- ====================================================== -->
     <changeSet id="init-article-versions" author="dominik">
         <preConditions onFail="MARK_RAN">
                 <tableExists tableName="article_versions"/>
         </preConditions>
 
-        <!-- Article 1 -->
         <insert tableName="article_versions">
             <column name="id" valueNumeric="1"/>
             <column name="article_id" valueNumeric="1"/>
@@ -186,7 +166,6 @@
             <column name="created_by" valueNumeric="1"/>
         </insert>
 
-        <!-- Articles 2–6 -->
         <insert tableName="article_versions">
             <column name="id" valueNumeric="2"/>
             <column name="article_id" valueNumeric="2"/>

@@ -6,9 +6,6 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ========================================================== -->
-    <!--   USERS TABLE                                              -->
-    <!-- ========================================================== -->
     <changeSet id="create-users-table" author="system">
 
         <createTable tableName="users">
@@ -40,10 +37,6 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <!-- ============================================ -->
-        <!-- Indexes (odpovídají anotacím v entitě)       -->
-        <!-- ============================================ -->
 
         <createIndex indexName="ix_users_username"
                      tableName="users"

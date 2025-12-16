@@ -6,9 +6,6 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ========================================================== -->
-    <!--   TICKET_COMMENTS TABLE                                    -->
-    <!-- ========================================================== -->
     <changeSet id="create-ticket-comments-table" author="system">
 
         <createTable tableName="ticket_comments">
@@ -39,10 +36,6 @@
             </column>
         </createTable>
 
-        <!-- =============================== -->
-        <!--  Foreign keys                   -->
-        <!-- =============================== -->
-
         <addForeignKeyConstraint
                 baseTableName="ticket_comments"
                 baseColumnNames="ticket_id"
@@ -57,10 +50,6 @@
                 referencedTableName="users"
                 referencedColumnNames="id"
                 constraintName="fk_ticket_comment_author"/>
-
-        <!-- =============================== -->
-        <!--  Indexes (optional but useful)  -->
-        <!-- =============================== -->
 
         <createIndex indexName="ix_ticket_comment_ticket_id"
                      tableName="ticket_comments">

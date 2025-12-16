@@ -6,9 +6,6 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ====================================================== -->
-    <!--   ARTICLE_VERSIONS TABLE                               -->
-    <!-- ====================================================== -->
     <changeSet id="create-article-versions-table" author="system">
 
         <createTable tableName="article_versions">
@@ -20,7 +17,6 @@
                 <constraints nullable="false"/>
             </column>
 
-            <!-- LOB = TEXT or CLOB depending on DB -->
             <column name="content" type="CLOB">
                 <constraints nullable="false"/>
             </column>
@@ -36,13 +32,11 @@
             <column name="created_by" type="BIGINT"/>
         </createTable>
 
-        <!-- Unique constraint for (article_id, version_number) -->
         <addUniqueConstraint
                 tableName="article_versions"
                 columnNames="article_id, version_number"
                 constraintName="uk_article_versions_article_version"/>
 
-        <!-- Foreign keys -->
         <addForeignKeyConstraint
                 baseTableName="article_versions"
                 baseColumnNames="article_id"

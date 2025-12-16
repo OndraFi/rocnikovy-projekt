@@ -57,7 +57,9 @@ public class SecurityConfig {
                             "/api/auth/request-password-reset",
                             "/api/auth/reset-password",
                             "/v3/api-docs/**",
-                            "/swagger-ui/**"
+                            "/swagger-ui/**",
+                            "/api/images",
+                            "/api/images/**"
                     );
 
                     // Add H2 console only if the dev profile is active

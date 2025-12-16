@@ -6,15 +6,7 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- =============================== -->
-    <!--   DATABASE STRUCTURE           -->
-    <!-- =============================== -->
-
     <includeAll path="database" relativeToChangelogFile="true"/>
-
-    <!-- =============================== -->
-    <!--   INITIAL DATA (if needed)     -->
-    <!-- =============================== -->
 
     <includeAll path="data" relativeToChangelogFile="true"/>
 
