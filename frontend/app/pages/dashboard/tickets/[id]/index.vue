@@ -77,7 +77,7 @@
                 </UBadge>
               </div>
 
-              <UDivider class="mb-6 border-slate-100" />
+              <hr class="mb-6 border-slate-100" />
 
               <div class="min-h-[150px]">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
@@ -405,14 +405,14 @@ export default defineComponent({
     },
 
     stateColor(state?: string) {
-      if (!state) return 'gray';
+      if (!state) return 'neutral';
       const s = state.toUpperCase();
       if (s === 'OPEN') return 'primary';
       if (s === 'IN_PROGRESS') return 'info';
       if (s === 'FOR_REVIEW') return 'warning';
       if (s === 'APPROVED') return 'success';
       if (s === 'PUBLISHED') return 'primary';
-      return 'gray';
+      return 'neutral';
     },
 
     async fetchTicket() {
@@ -548,7 +548,7 @@ export default defineComponent({
     },
 
     commentKey(comment: any): string {
-      return `${comment.commentNumber ?? comment.id ?? ''}`;
+      return comment.number;
     },
 
     async addComment() {
@@ -578,6 +578,9 @@ export default defineComponent({
 
     startEditComment(comment: any) {
       this.editingCommentKey = this.commentKey(comment);
+      console.log(comment);
+      console.log(this.editingCommentKey);
+      console.log(this.commentKey(comment))
       this.editCommentContent = comment.content || '';
     },
     cancelEditComment() {
@@ -585,6 +588,7 @@ export default defineComponent({
       this.editCommentContent = '';
     },
     async saveComment(comment: any) {
+      console.log(this.editingCommentKey);
       if (!this.ticket?.id || !this.editingCommentKey) return;
       const content = this.editCommentContent.trim();
       if (!content) return;
@@ -592,7 +596,7 @@ export default defineComponent({
       try {
         const req = {
           ticketId: this.ticket.id,
-          commentNumber: comment.commentNumber,
+          commentNumber: comment.number,
           updateTicketCommentRequest: { content }
         };
         const updated: TicketCommentResponse = await (this as any).$ticketCommentsApi.updateTicketComment(req);
@@ -616,7 +620,7 @@ export default defineComponent({
       try {
         const req = {
           ticketId: this.ticket.id,
-          commentNumber: comment.commentNumber
+          commentNumber: comment.number
         };
         await (this as any).$ticketCommentsApi.deleteTicketComment(req);
         this.comments = this.comments.filter((c) => this.commentKey(c) !== key);
