@@ -69,9 +69,18 @@ public class ArticleService {
         return ArticleDto.toDetailResponse(article, latestVersion.getContent(), latestVersion.getVersionNumber());
     }
 
-    public PaginatedArticleResponse list(Pageable pageable) {
-        log.debug("Listing articles: {}", pageable);
-        Page<Article> page = articleRepository.findAll(pageable);
+    public PaginatedArticleResponse list(Pageable pageable, Long categoryId) {
+        log.debug("Listing articles: pageable={}, categoryId={}", pageable, categoryId);
+
+        Page<Article> page;
+        if (categoryId != null) {
+            log.debug("Listing with filter");
+            page = articleRepository.findByCategories_Id(categoryId, pageable);
+        } else {
+            log.debug("Listing without filter");
+            page = articleRepository.findAll(pageable);
+        }
+
         List<ArticleResponse> articles = page.getContent().stream()
                 .map(ArticleDto::toResponse)
                 .toList();

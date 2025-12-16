@@ -8,6 +8,7 @@ import cz.upce.fei.redsys.security.annotation.ArticlePermissions.CanDeleteArticl
 import cz.upce.fei.redsys.security.annotation.ArticlePermissions.CanEditArticle;
 import cz.upce.fei.redsys.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,15 +72,17 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.get(id));
     }
 
-    @Operation(summary = "List articles", description = "List articles with pagination", operationId = "listArticles")
+    @Operation(summary = "List articles", description = "List articles with pagination and optional category filter", operationId = "listArticles")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Articles found",
                     content = @Content(schema = @Schema(implementation = PaginatedArticleResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<PaginatedArticleResponse> list(@PageableDefault(size = 20) Pageable pageable) {
-        log.debug("GET /api/articles: {}", pageable);
-        return ResponseEntity.ok(articleService.list(pageable));
+    public ResponseEntity<PaginatedArticleResponse> list(
+            @PageableDefault(size = 20) Pageable pageable,
+            @RequestParam(required = false) @Parameter(description = "Filter by category ID") Long categoryId) {
+        log.debug("GET /api/articles: pageable={}, categoryId={}", pageable, categoryId);
+        return ResponseEntity.ok(articleService.list(pageable, categoryId));
     }
 
     @Operation(summary = "Update article", description = "Update article fields", operationId = "updateArticle")
