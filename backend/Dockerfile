@@ -19,6 +19,7 @@ EXPOSE 8080
 COPY --from=builder /app/build/libs/RedSysAPI-0.0.1-SNAPSHOT.jar app.jar
 
 RUN addgroup --system spring && adduser --system --ingroup spring spring
+RUN mkdir -p /app/data/images && chown -R spring:spring /app/data
 USER spring
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
