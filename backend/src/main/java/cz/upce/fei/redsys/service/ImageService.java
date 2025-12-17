@@ -2,9 +2,12 @@ package cz.upce.fei.redsys.service;
 
 import cz.upce.fei.redsys.domain.Image;
 import cz.upce.fei.redsys.dto.ImageDto;
+import cz.upce.fei.redsys.dto.ImageDto.ImageResponse;
+import cz.upce.fei.redsys.dto.ImageDto.DownloadResource;
 import cz.upce.fei.redsys.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import cz.upce.fei.redsys.dto.ImageDto.PaginatedImageResponse;
@@ -37,9 +42,7 @@ public class ImageService {
         validateFile(file);
 
         String filename = generateFilename(file.getOriginalFilename());
-
         String path = fileStorageService.store(file, filename);
-
 
         Image image = Image.builder()
                 .filename(filename)
@@ -55,12 +58,20 @@ public class ImageService {
     }
 
     @Transactional(readOnly = true)
-    public Image get(String fileName) {
+    public DownloadResource get(String fileName) {
         log.debug("Getting image with name {}", fileName);
         Image image = imageRepository.findImageByFilename(fileName)
                 .orElseThrow(() -> new EntityNotFoundException("Image not found"));
         log.debug("Image found: name={}", image.getFilename());
-        return image;
+
+        Resource resource = fileStorageService.load(image.getFilename());
+
+        return new DownloadResource(
+                resource,
+                image.getContentType(),
+                image.getFileSize(),
+                image.getOriginalFilename()
+        );
     }
 
     @Transactional
@@ -85,13 +96,8 @@ public class ImageService {
         }
 
         String contentType = file.getContentType();
-        boolean isAllowed = false;
-        for (String allowedType : ALLOWED_CONTENT_TYPES) {
-            if (allowedType.equals(contentType)) {
-                isAllowed = true;
-                break;
-            }
-        }
+        boolean isAllowed = contentType != null &&
+                Arrays.stream(ALLOWED_CONTENT_TYPES).anyMatch(contentType::startsWith);
 
         if (!isAllowed) {
             throw new IllegalArgumentException("File type not allowed: " + contentType);
@@ -103,18 +109,18 @@ public class ImageService {
         if (originalFilename != null && originalFilename.contains(".")) {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
-        return UUID.randomUUID()+ extension;
+        return UUID.randomUUID() + extension;
     }
 
     @Transactional(readOnly = true)
     public PaginatedImageResponse list(Pageable pageable) {
         log.debug("Listing categories: {}", pageable);
         Page<Image> page = imageRepository.findAll(pageable);
-        List<ImageDto.ImageResponse> images = page.getContent().stream()
+        List<ImageResponse> images = page.getContent().stream()
                 .map(ImageDto::toResponse)
                 .toList();
 
-        return new ImageDto.PaginatedImageResponse(
+        return new PaginatedImageResponse(
                 images,
                 page.getNumber(),
                 page.getSize(),
