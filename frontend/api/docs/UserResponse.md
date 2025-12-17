@@ -10,6 +10,7 @@ Name | Type
 `username` | string
 `fullName` | string
 `role` | string
+`active` | boolean
 
 ## Example
 
@@ -22,6 +23,7 @@ const example = {
   "username": null,
   "fullName": null,
   "role": null,
+  "active": null,
 } satisfies UserResponse
 
 console.log(example)

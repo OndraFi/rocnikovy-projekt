@@ -14,7 +14,8 @@ public final class UserDto {
             Long id,
             String username,
             String fullName,
-            UserRole role
+            UserRole role,
+            boolean active
     ) {}
 
     public record PaginatedUserResponse(
@@ -31,6 +32,7 @@ public final class UserDto {
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .role(user.getRole())
+                .active(user.isActive())
                 .build();
     }
 }

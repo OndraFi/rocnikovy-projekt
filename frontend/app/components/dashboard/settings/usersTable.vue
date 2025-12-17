@@ -118,7 +118,7 @@ export default defineComponent({
           cell: ({ row }) => {
             const user = row.original;
 
-            const isBlocked = user.blocked ?? false;
+            const isBlocked = !user.active;
             const label = isBlocked ? "Odblokovat" : "Zablokovat";
             const color = isBlocked ? "primary" : "error";
             const icon = isBlocked ? "i-lucide-unlock-2" : "i-lucide-ban";
@@ -169,7 +169,7 @@ export default defineComponent({
       console.log(user);
       if (!user.username) return;
 
-      const isBlocked = user.blocked ?? false;
+      const isBlocked = !user.active;
 
       try {
         if (isBlocked) {
