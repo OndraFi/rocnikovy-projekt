@@ -4,6 +4,7 @@ import cz.upce.fei.redsys.domain.Image;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 
 public final class ImageDto {
     private ImageDto() {}
@@ -17,6 +18,14 @@ public final class ImageDto {
             Long fileSize,
             Instant uploadedAt,
             String url
+    ) {}
+
+    public record PaginatedImageResponse(
+            List<ImageResponse> categories,
+            int page,
+            int size,
+            long totalElements,
+            int totalPages
     ) {}
 
     public static ImageResponse toResponse(Image image) {

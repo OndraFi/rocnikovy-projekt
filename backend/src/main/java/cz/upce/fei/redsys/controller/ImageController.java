@@ -2,6 +2,7 @@ package cz.upce.fei.redsys.controller;
 
 import cz.upce.fei.redsys.domain.Image;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
+import cz.upce.fei.redsys.dto.ImageDto;
 import cz.upce.fei.redsys.dto.ImageDto.ImageResponse;
 import cz.upce.fei.redsys.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +77,12 @@ public class ImageController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(image.getData());
+    }
+
+    @GetMapping
+    public ResponseEntity<ImageDto.PaginatedImageResponse> list(@PageableDefault(size = 20) Pageable pageable) {
+        log.debug("GET /api/categories: {}", pageable);
+        return ResponseEntity.ok(imageService.list(pageable));
     }
 
     @Operation(summary = "Delete image", description = "Delete an image", operationId = "deleteImage")

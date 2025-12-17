@@ -1,16 +1,21 @@
 package cz.upce.fei.redsys.service;
 
 import cz.upce.fei.redsys.domain.Image;
+import cz.upce.fei.redsys.dto.ImageDto;
 import cz.upce.fei.redsys.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import cz.upce.fei.redsys.dto.ImageDto.PaginatedImageResponse;
 
 
 @Service
@@ -100,5 +105,22 @@ public class ImageService {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         return UUID.randomUUID()+ extension;
+    }
+
+    @Transactional(readOnly = true)
+    public PaginatedImageResponse list(Pageable pageable) {
+        log.debug("Listing categories: {}", pageable);
+        Page<Image> page = imageRepository.findAll(pageable);
+        List<ImageDto.ImageResponse> images = page.getContent().stream()
+                .map(ImageDto::toResponse)
+                .toList();
+
+        return new ImageDto.PaginatedImageResponse(
+                images,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
     }
 }
