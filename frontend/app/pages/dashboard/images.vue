@@ -240,12 +240,10 @@ export default defineComponent({
           this.totalPages = response.totalPages
         if (typeof response?.totalElements === 'number')
           this.totalElements = response.totalElements
-        if (typeof response?.totalItems === 'number')
-          this.totalElements = response.totalItems
-        if (typeof response?.pageable?.pageNumber === 'number')
-          this.page = response.pageable.pageNumber
-        if (typeof response?.pageable?.pageSize === 'number')
-          this.size = response.pageable.pageSize
+        if (typeof response?.page === 'number')
+          this.page = response.page
+        if (typeof response?.size === 'number')
+          this.size = response.size
       } catch (err: any) {
         console.error(err?.message || err)
         this.error = 'Nepodařilo se načíst obrázky.'
