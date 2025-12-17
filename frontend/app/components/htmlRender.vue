@@ -8,6 +8,8 @@
 </template>
 
 <script lang="ts">
+import { useRuntimeConfig } from '#imports'
+
 export default {
   name: 'HtmlRenderer',
   props: {
@@ -18,9 +20,26 @@ export default {
   },
   computed: {
     safeHtml(): string {
-      // kdybys chtěl sanitizovat:
-      // return DOMPurify.sanitize(this.html)
-      return this.html
+      const config = useRuntimeConfig()
+      const apiBase = config.public.apiBase
+
+      console.log(apiBase)
+      if (!this.html) return ''
+
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(this.html, 'text/html')
+      const images = doc.querySelectorAll('img')
+      images.forEach(img => {
+        const src = img.getAttribute('src')
+        if (!src) return
+
+        // upravujeme jen relativní /api cesty
+        if (src.startsWith('/api')) {
+          img.setAttribute('src', `${apiBase}${src}`)
+        }
+      })
+
+      return doc.body.innerHTML
     }
   }
 }

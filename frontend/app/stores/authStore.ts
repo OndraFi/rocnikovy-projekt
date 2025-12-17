@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {jwtDecode} from 'jwt-decode';
-import type {UserResponse} from "~~/api";
-import {UserResponseRoleEnum} from "~~/api";
+import type {UserResponse} from "../../api";
+import {UserResponseRoleEnum} from "../../api";
 
 interface TokenPayload {
     exp: number;

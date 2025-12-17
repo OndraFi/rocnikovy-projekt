@@ -1,7 +1,7 @@
 import { Node, mergeAttributes } from "@tiptap/core"
 import { VueNodeViewRenderer } from "@tiptap/vue-3"
 import { nodeInputRule } from "@tiptap/core"
-import ImageView from "@/components/imageView.vue" // tvoje existující
+import ImageView from "@/components/imageView.vue"
 
 export const ApiImage = Node.create({
     name: "apiImage",
@@ -33,7 +33,7 @@ export const ApiImage = Node.create({
 
     renderHTML({ HTMLAttributes }) {
         return ["img", mergeAttributes(HTMLAttributes, {
-            "src": "http://localhost:8080/api/images/" + HTMLAttributes.filename,
+            "src": "/api/images/" + HTMLAttributes.filename,
             "data-api-image": "1",
             "data-id": HTMLAttributes.id ?? "",
             "data-filename": HTMLAttributes.filename ?? "",

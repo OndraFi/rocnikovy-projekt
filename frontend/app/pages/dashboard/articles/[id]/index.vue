@@ -120,7 +120,7 @@
 
           <div v-if="!isEditing" class="prose dark:prose-invert max-w-none">
             <p v-if="!article.content" class="text-gray-400">Bez obsahu</p>
-            <div v-else v-html="article.content"></div>
+            <html-render :html="article.content" />
           </div>
 
           <TiptapEditor v-else v-model="form.content"/>
