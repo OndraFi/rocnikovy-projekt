@@ -32,9 +32,8 @@ public class Image {
     @Column(name = "file_size", nullable = false)
     private Long fileSize;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "LONGBLOB")
-    private byte[] data;
+    @Column(nullable = false)
+    private String path;
 
     @Column(name = "uploaded_at", nullable = false, updatable = false)
     @Builder.Default

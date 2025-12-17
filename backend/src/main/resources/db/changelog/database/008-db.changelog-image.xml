@@ -29,7 +29,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="data" type="BLOB">
+            <column name="path" type="VARCHAR(500)">
                 <constraints nullable="false"/>
             </column>
 

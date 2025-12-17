@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import cz.upce.fei.redsys.dto.ImageDto.PaginatedImageResponse;
@@ -24,6 +23,7 @@ import cz.upce.fei.redsys.dto.ImageDto.PaginatedImageResponse;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+    private final FileStorageService fileStorageService;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final String[] ALLOWED_CONTENT_TYPES = {
@@ -38,23 +38,20 @@ public class ImageService {
 
         String filename = generateFilename(file.getOriginalFilename());
 
-        try {
-            Image image = Image.builder()
-                    .filename(filename)
-                    .originalFilename(file.getOriginalFilename())
-                    .contentType(file.getContentType())
-                    .fileSize(file.getSize())
-                    .data(file.getBytes())
-                    .build();
+        String path = fileStorageService.store(file, filename);
 
-            image = imageRepository.save(image);
-            log.debug("Image uploaded: id={}, filename={}", image.getId(), image.getFilename());
 
-            return image;
-        } catch (IOException e) {
-            log.error("Error reading file data", e);
-            throw new RuntimeException("Failed to read file data", e);
-        }
+        Image image = Image.builder()
+                .filename(filename)
+                .originalFilename(file.getOriginalFilename())
+                .contentType(file.getContentType())
+                .fileSize(file.getSize())
+                .path(path)
+                .build();
+        image = imageRepository.save(image);
+        log.debug("Image uploaded: id={}, filename={}", image.getId(), image.getFilename());
+
+        return image;
     }
 
     @Transactional(readOnly = true)
@@ -73,6 +70,8 @@ public class ImageService {
             throw new EntityNotFoundException("Image not found");
         }
         imageRepository.deleteByFilename(fileName);
+        fileStorageService.delete(fileName);
+
         log.debug("Image deleted: name={}", fileName);
     }
 

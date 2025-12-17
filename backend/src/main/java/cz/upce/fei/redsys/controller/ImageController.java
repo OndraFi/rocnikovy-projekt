@@ -25,6 +25,7 @@ import cz.upce.fei.redsys.security.annotation.ImagePermissions.CanDeleteImage;
 import cz.upce.fei.redsys.security.annotation.ImagePermissions.CanUploadImage;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import static cz.upce.fei.redsys.dto.ImageDto.toResponse;
 
@@ -74,9 +75,10 @@ public class ImageController {
         headers.setContentLength(image.getFileSize());
         headers.setContentDispositionFormData("inline", image.getOriginalFilename());
 
+
         return ResponseEntity.ok()
                 .headers(headers)
-                .body(image.getData());
+                .body(image.getPath().getBytes(StandardCharsets.UTF_8));
     }
 
     @GetMapping
