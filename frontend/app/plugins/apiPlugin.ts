@@ -1,14 +1,15 @@
 import {defineNuxtPlugin} from '#app';
 import {useRuntimeConfig} from '#imports';
 import {Configuration} from '../../api';
-import {useAuthStore} from '@/stores/authStore';
+import {useAuthStore} from '~/stores/authStore';
 import {
     ArticlesApi,
     ArticleVersionsApi,
     AuthenticationApi,
     CategoriesApi,
     TicketsApi,
-    TicketCommentsApi
+    TicketCommentsApi,
+    ImagesApi
 } from '../../api';
 import type {ComponentCustomProperties} from "vue";
 import {UsersApi} from "~~/api";
@@ -22,6 +23,7 @@ declare module '@vue/runtime-core' {
         $ticketsApi: TicketsApi;
         $ticketCommentsApi: TicketCommentsApi;
         $usersApi: UsersApi;
+        $imagesApi: ImagesApi;
     }
 }
 //
@@ -53,6 +55,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const ticketsApi = new TicketsApi(config);
     const ticketCommentsApi = new TicketCommentsApi(config);
     const usersApi = new UsersApi(config);
+    const imagesApi = new ImagesApi(config);
 
     vueApp.config.globalProperties.$articlesApi = articlesApi;
     vueApp.config.globalProperties.$articlesVersionsApi = articlesVersionsApi;
@@ -61,4 +64,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     vueApp.config.globalProperties.$ticketsApi = ticketsApi;
     vueApp.config.globalProperties.$ticketCommentsApi = ticketCommentsApi;
     vueApp.config.globalProperties.$usersApi = usersApi;
+    vueApp.config.globalProperties.$imagesApi = imagesApi;
 });

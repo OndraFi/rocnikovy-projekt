@@ -9,6 +9,7 @@ export * from './CreateCategoryRequest';
 export * from './CreateTicketCommentRequest';
 export * from './CreateTicketRequest';
 export * from './ErrorResponse';
+export * from './ImageResponse';
 export * from './LoginRequest';
 export * from './LoginResponse';
 export * from './MessageResponse';

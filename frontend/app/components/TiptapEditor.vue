@@ -129,6 +129,28 @@
           :editor="editor"
           class="tiptap-content bg-white prose prose-sm max-w-none min-h-[260px] px-4 py-3"
       />
+
+    <div v-if="isNewImageOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div class="w-full max-w-md rounded-lg bg-white p-4 shadow">
+        <div class="flex items-center justify-between">
+          <h3 class="font-semibold">Nahrát obrázek</h3>
+          <button class="text-sm" @click="isNewImageOpen = false">✕</button>
+        </div>
+
+        <input class="mt-3" type="file" accept="image/*" @change="onPickFile" />
+
+        <div class="mt-4 flex gap-2 justify-end">
+          <button class="px-3 py-1 rounded border" @click="isNewImageOpen = false">Zrušit</button>
+          <button class="px-3 py-1 rounded bg-primary text-white"
+                  :disabled="!uploadFile || uploading"
+                  @click="doUpload">
+            {{ uploading ? "Nahrávám…" : "Nahrát" }}
+          </button>
+        </div>
+
+        <p v-if="uploadError" class="mt-2 text-sm text-red-600">{{ uploadError }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -137,6 +159,8 @@ import { Editor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
+import {ApiImage} from "~/extensions/ApiImage.ts";
+import { SlashCommands } from "@/extensions/SlashCommands"
 
 export default {
   name: 'TiptapEditor',
@@ -157,7 +181,10 @@ export default {
   data() {
     return {
       editor: null,
-      isFullScreen: false,
+      isNewImageOpen: false,
+      uploadFile: null,
+      uploadError: "",
+      uploading: false,
     }
   },
 
@@ -206,7 +233,14 @@ export default {
         TextAlign.configure({
           types: ['heading', 'paragraph'],
         }),
+          ApiImage,
+        SlashCommands.configure({
+          openNewImageModal: () => {
+            this.isNewImageOpen = true
+          },
+        }),
       ],
+      ApiImage: this.$imagesApi,
       onUpdate: ({ editor }) => {
         this.$emit('update:modelValue', editor.getHTML())
       },
@@ -220,6 +254,35 @@ export default {
   },
 
   methods: {
+    onPickFile(e) {
+      this.uploadFile = e.target.files?.[0] ?? null
+    },
+    async doUpload() {
+      if (!this.uploadFile || !this.editor) return
+      this.uploading = true
+      this.uploadError = ""
+      try {
+        const res = await this.$imagesApi.uploadImage({ file: this.uploadFile }) // ImageResponse
+        if (!res?.filename) throw new Error("API nevrátilo filename")
+
+        console.log(res)
+
+        this.editor.chain().focus().insertApiImage({
+          id: res.id ?? null,
+          filename: res.filename,
+          originalFilename: res.originalFilename ?? null,
+          contentType: res.contentType ?? null,
+          url: res.url ?? null,
+        }).run()
+
+        this.isNewImageOpen = false
+        this.uploadFile = null
+      } catch (e) {
+        this.uploadError = e?.message || String(e)
+      } finally {
+        this.uploading = false
+      }
+    },
     toggleAlign(direction) {
       if (!this.editor) return
       const isActive = this.editor.isActive({ textAlign: direction })

@@ -3,6 +3,7 @@ apis/ArticleVersionsApi.ts
 apis/ArticlesApi.ts
 apis/AuthenticationApi.ts
 apis/CategoriesApi.ts
+apis/ImagesApi.ts
 apis/TicketCommentsApi.ts
 apis/TicketsApi.ts
 apis/UsersApi.ts
@@ -20,6 +21,8 @@ docs/CreateCategoryRequest.md
 docs/CreateTicketCommentRequest.md
 docs/CreateTicketRequest.md
 docs/ErrorResponse.md
+docs/ImageResponse.md
+docs/ImagesApi.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/MessageResponse.md
@@ -57,6 +60,7 @@ models/CreateCategoryRequest.ts
 models/CreateTicketCommentRequest.ts
 models/CreateTicketRequest.ts
 models/ErrorResponse.ts
+models/ImageResponse.ts
 models/LoginRequest.ts
 models/LoginResponse.ts
 models/MessageResponse.ts
