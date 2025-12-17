@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 | [**deleteImage**](ImagesApi.md#deleteimage) | **DELETE** /api/images/{fileName} | Delete image |
 | [**getImage**](ImagesApi.md#getimage) | **GET** /api/images/{fileName} | Get image |
+| [**listImages**](ImagesApi.md#listimages) | **GET** /api/images | List images |
 | [**uploadImage**](ImagesApi.md#uploadimage) | **POST** /api/images | Upload image |
 
 
@@ -29,7 +30,11 @@ import type { DeleteImageRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
-  const api = new ImagesApi();
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new ImagesApi(config);
 
   const body = {
     // string
@@ -61,7 +66,7 @@ example().catch(console.error);
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -97,7 +102,11 @@ import type { GetImageRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
-  const api = new ImagesApi();
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new ImagesApi(config);
 
   const body = {
     // string
@@ -129,7 +138,7 @@ example().catch(console.error);
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -141,6 +150,78 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Image found |  -  |
+| **404** | Image not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## listImages
+
+> PaginatedImageResponse listImages(pageable)
+
+List images
+
+List images with pagination
+
+### Example
+
+```ts
+import {
+  Configuration,
+  ImagesApi,
+} from '';
+import type { ListImagesRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new ImagesApi(config);
+
+  const body = {
+    // Pageable
+    pageable: ...,
+  } satisfies ListImagesRequest;
+
+  try {
+    const data = await api.listImages(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **pageable** | [](.md) |  | [Defaults to `undefined`] |
+
+### Return type
+
+[**PaginatedImageResponse**](PaginatedImageResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Images found |  -  |
 | **404** | Image not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -165,7 +246,11 @@ import type { UploadImageRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
-  const api = new ImagesApi();
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new ImagesApi(config);
 
   const body = {
     // Blob
@@ -197,7 +282,7 @@ example().catch(console.error);
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 

@@ -21,7 +21,7 @@ public final class ImageDto {
     ) {}
 
     public record PaginatedImageResponse(
-            List<ImageResponse> categories,
+            List<ImageResponse> images,
             int page,
             int size,
             long totalElements,

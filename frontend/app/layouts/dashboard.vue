@@ -41,6 +41,14 @@ const links = [
       }
     },
     {
+      label: 'Images',
+      icon: 'i-lucide-image',
+      to: '/dashboard/images',
+      onSelect: () => {
+        open.value = false
+      }
+    },
+    {
       label: 'Settings',
       icon: 'i-lucide-settings',
       to: '/dashboard/settings',

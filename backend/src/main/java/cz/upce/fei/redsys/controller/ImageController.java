@@ -1,6 +1,7 @@
 package cz.upce.fei.redsys.controller;
 
 import cz.upce.fei.redsys.domain.Image;
+import cz.upce.fei.redsys.dto.CategoryDto;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ImageDto;
 import cz.upce.fei.redsys.dto.ImageDto.ImageResponse;
@@ -79,6 +80,11 @@ public class ImageController {
                 .body(image.getData());
     }
 
+    @Operation(summary = "List images", description = "List images with pagination", operationId = "listImages")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Images found",
+                    content = @Content(schema = @Schema(implementation = ImageDto.PaginatedImageResponse.class)))
+    })
     @GetMapping
     public ResponseEntity<ImageDto.PaginatedImageResponse> list(@PageableDefault(size = 20) Pageable pageable) {
         log.debug("GET /api/categories: {}", pageable);

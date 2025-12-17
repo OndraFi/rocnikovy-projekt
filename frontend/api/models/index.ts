@@ -17,6 +17,7 @@ export * from './Pageable';
 export * from './PaginatedArticleResponse';
 export * from './PaginatedArticleVersionResponse';
 export * from './PaginatedCategoryResponse';
+export * from './PaginatedImageResponse';
 export * from './PaginatedTicketCommentResponse';
 export * from './PaginatedTicketResponse';
 export * from './PaginatedUserResponse';

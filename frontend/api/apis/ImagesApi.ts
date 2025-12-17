@@ -17,12 +17,18 @@ import * as runtime from '../runtime';
 import type {
   ErrorResponse,
   ImageResponse,
+  Pageable,
+  PaginatedImageResponse,
 } from '../models/index';
 import {
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     ImageResponseFromJSON,
     ImageResponseToJSON,
+    PageableFromJSON,
+    PageableToJSON,
+    PaginatedImageResponseFromJSON,
+    PaginatedImageResponseToJSON,
 } from '../models/index';
 
 export interface DeleteImageRequest {
@@ -31,6 +37,10 @@ export interface DeleteImageRequest {
 
 export interface GetImageRequest {
     fileName: string;
+}
+
+export interface ListImagesRequest {
+    pageable: Pageable;
 }
 
 export interface UploadImageRequest {
@@ -58,6 +68,14 @@ export class ImagesApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
 
         let urlPath = `/api/images/{fileName}`;
         urlPath = urlPath.replace(`{${"fileName"}}`, encodeURIComponent(String(requestParameters['fileName'])));
@@ -96,6 +114,14 @@ export class ImagesApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
 
         let urlPath = `/api/images/{fileName}`;
         urlPath = urlPath.replace(`{${"fileName"}}`, encodeURIComponent(String(requestParameters['fileName'])));
@@ -124,6 +150,56 @@ export class ImagesApi extends runtime.BaseAPI {
     }
 
     /**
+     * List images with pagination
+     * List images
+     */
+    async listImagesRaw(requestParameters: ListImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PaginatedImageResponse>> {
+        if (requestParameters['pageable'] == null) {
+            throw new runtime.RequiredError(
+                'pageable',
+                'Required parameter "pageable" was null or undefined when calling listImages().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['pageable'] != null) {
+            queryParameters['pageable'] = requestParameters['pageable'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/images`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PaginatedImageResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * List images with pagination
+     * List images
+     */
+    async listImages(requestParameters: ListImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PaginatedImageResponse> {
+        const response = await this.listImagesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Upload a new image file
      * Upload image
      */
@@ -139,6 +215,14 @@ export class ImagesApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const consumes: runtime.Consume[] = [
             { contentType: 'multipart/form-data' },
         ];

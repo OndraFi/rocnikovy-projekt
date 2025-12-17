@@ -30,6 +30,7 @@ docs/Pageable.md
 docs/PaginatedArticleResponse.md
 docs/PaginatedArticleVersionResponse.md
 docs/PaginatedCategoryResponse.md
+docs/PaginatedImageResponse.md
 docs/PaginatedTicketCommentResponse.md
 docs/PaginatedTicketResponse.md
 docs/PaginatedUserResponse.md
@@ -68,6 +69,7 @@ models/Pageable.ts
 models/PaginatedArticleResponse.ts
 models/PaginatedArticleVersionResponse.ts
 models/PaginatedCategoryResponse.ts
+models/PaginatedImageResponse.ts
 models/PaginatedTicketCommentResponse.ts
 models/PaginatedTicketResponse.ts
 models/PaginatedUserResponse.ts
