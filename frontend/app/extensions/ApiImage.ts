@@ -60,9 +60,12 @@ export const ApiImage = Node.create({
         // fix na to “skákání”: spustí se až po mezeře
         return [
             nodeInputRule({
-                find: /(?:^|\s)\/image=([A-Za-z0-9._-]+)\s$/,
+                find: /(?:^|\s)\/image=[A-Za-z0-9._-]+\s$/,
                 type: this.type,
-                getAttributes: (match) => ({ filename: match[1] }),
+                getAttributes: (match) => {
+                    const filenameMatch = match[0].match(/\/image=([A-Za-z0-9._-]+)/)
+                    return { filename: filenameMatch?.[1] ?? null }
+                },
             }),
         ]
     },

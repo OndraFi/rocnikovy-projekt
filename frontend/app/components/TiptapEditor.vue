@@ -46,6 +46,13 @@
           </button>
           <button
               type="button"
+              :class="buttonClass(editor?.isActive('link'))"
+              @click="toggleLink"
+          >
+            <UIcon name="i-lucide-link-2" class="h-4 w-4" />
+          </button>
+          <button
+              type="button"
               :class="buttonClass(editor?.isActive('strike'))"
               @click="editor?.chain().focus().toggleStrike().run()"
           >
@@ -159,6 +166,7 @@ import { Editor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
+import Link from '@tiptap/extension-link'
 import {ApiImage} from "~/extensions/ApiImage.ts";
 import { SlashCommands } from "@/extensions/SlashCommands"
 
@@ -233,6 +241,11 @@ export default {
         TextAlign.configure({
           types: ['heading', 'paragraph'],
         }),
+        Link.configure({
+          openOnClick: false,
+          autolink: true,
+          linkOnPaste: true,
+        }),
           ApiImage,
         SlashCommands.configure({
           openNewImageModal: () => {
@@ -304,6 +317,38 @@ export default {
       const active = ' bg-primary text-white border-primary hover:bg-primary'
 
       return isActive ? base + active : base
+    },
+    toggleLink() {
+      if (!this.editor) return
+
+      if (this.editor.isActive('link')) {
+        this.editor.chain().focus().extendMarkRange('link').unsetLink().run()
+        return
+      }
+
+      const raw = window.prompt('Zadejte URL odkazu')
+      if (!raw) return
+
+      const value = raw.trim()
+      if (!value) return
+
+      const normalized =
+          value.startsWith('http://') ||
+          value.startsWith('https://') ||
+          value.startsWith('mailto:')
+              ? value
+              : `https://${value}`
+
+      this.editor
+          .chain()
+          .focus()
+          .extendMarkRange('link')
+          .setLink({
+            href: normalized,
+            target: '_blank',
+            rel: 'noopener noreferrer'
+          })
+          .run()
     }
   },
 }
