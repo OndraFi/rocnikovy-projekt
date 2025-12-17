@@ -29,7 +29,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="data" type="LONGBLOB">
+            <column name="data" type="BLOB">
                 <constraints nullable="false"/>
             </column>
 

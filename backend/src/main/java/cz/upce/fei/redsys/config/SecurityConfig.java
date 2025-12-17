@@ -57,9 +57,7 @@ public class SecurityConfig {
                             "/api/auth/request-password-reset",
                             "/api/auth/reset-password",
                             "/v3/api-docs/**",
-                            "/swagger-ui/**",
-                            "/api/images",
-                            "/api/images/**"
+                            "/swagger-ui/**"
                     );
 
                     // Add H2 console only if the dev profile is active
@@ -70,6 +68,7 @@ public class SecurityConfig {
 
                     auth.requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET,"api/images/**").permitAll();
                     auth.requestMatchers(permittedArray)
                             .permitAll()
                             .anyRequest().authenticated();
