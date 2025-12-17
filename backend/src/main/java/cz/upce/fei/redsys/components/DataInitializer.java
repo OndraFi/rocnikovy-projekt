@@ -5,18 +5,14 @@ import cz.upce.fei.redsys.repository.ArticleRepository;
 import cz.upce.fei.redsys.repository.ArticleVersionRepository;
 import cz.upce.fei.redsys.repository.CategoryRepository;
 import cz.upce.fei.redsys.repository.UserRepository;
-import cz.upce.fei.redsys.service.ArticleVersionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -28,88 +24,68 @@ public class DataInitializer implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final ArticleRepository articleRepository;
     private final ArticleVersionRepository articleVersionRepository;
-    private final Environment env;
-
 
     @Override
-    public void run(String... args) throws Exception {
-        boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
-        if (!isDev) {
-            return;
-        }
+    public void run(String... args) {
         log.info("Data init running...");
         String hashedPassword = passwordEncoder.encode("heslo123");
-        User user = User.builder()
-                .username("admin")
-                .fullName("admin user")
-                .email("admin@gmail.com")
-                .password(hashedPassword)
-                .role(UserRole.ADMIN)
-                .build();
-        if (userRepository.findByUsername("admin").isEmpty()) {
-            log.info("Creating user {}", user.getEmail());
-            userRepository.save(user);
-        }
+        User adminUser = userRepository.findByUsername("admin")
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .username("admin")
+                        .fullName("admin user")
+                        .email("admin@gmail.com")
+                        .password(hashedPassword)
+                        .role(UserRole.ADMIN)
+                        .build()));
 
-        User editorUser = User.builder()
-                .username("editor")
-                .fullName("editor user")
-                .email("editor@gmail.com")
-                .password(hashedPassword)
-                .role(UserRole.EDITOR)
-                .build();
-        if (userRepository.findByUsername("editor").isEmpty()) {
-            log.info("Creating user {}", editorUser.getEmail());
-            userRepository.save(editorUser);
-        }
+        User editorUser = userRepository.findByUsername("editor")
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .username("editor")
+                        .fullName("editor user")
+                        .email("editor@gmail.com")
+                        .password(hashedPassword)
+                        .role(UserRole.EDITOR)
+                        .build()));
 
-        user = User.builder()
-                .username("chief")
-                .fullName("chief user")
-                .email("chief@gmail.com")
-                .password(hashedPassword)
-                .role(UserRole.CHIEF_EDITOR)
-                .build();
-        if (userRepository.findByUsername("chief").isEmpty()) {
-            log.info("Creating user {}", user.getEmail());
-            userRepository.save(user);
-        }
+        User chiefUser = userRepository.findByUsername("chief")
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .username("chief")
+                        .fullName("chief user")
+                        .email("chief@gmail.com")
+                        .password(hashedPassword)
+                        .role(UserRole.CHIEF_EDITOR)
+                        .build()));
 
-        List<User> users = userRepository.findAll();
-        log.info("Found {} users", users.size());
-        log.info("First user {}", users.getFirst());
+        Category c1 = categoryRepository.findByName("Sport")
+                .orElseGet(() -> categoryRepository.save(Category.builder()
+                        .name("Sport")
+                        .description("Sport related items")
+                        .build()));
 
-        Category c1 = new Category();
-        c1.setName("Sport");
-        c1.setDescription("Sport related items");
-        if (!categoryRepository.existsByName(c1.getName())) {
-            log.info("Creating category {}", c1.getName());
-            categoryRepository.save(c1);
-        }
+        Category c2 = categoryRepository.findByName("Ekonomika")
+                .orElseGet(() -> categoryRepository.save(Category.builder()
+                            .name("Ekonomika")
+                            .description("Ekonomika related items")
+                            .build()));
 
-        Category c2 = new Category();
-        c2.setName("Ekonomika");
-        c2.setDescription("Ekonomika related items");
-        if (!categoryRepository.existsByName(c2.getName())) {
-            log.info("Creating category {}", c2.getName());
-            categoryRepository.save(c2);
-        }
         Set<Category> categoriesSport = new HashSet<>();
         categoriesSport.add(c1);
 
         Set<Category> economyCategories = new HashSet<>();
         economyCategories.add(c2);
 
-        Article article1 = new Article();
-        article1.setTitle("Football News");
-        article1.setArticleState(ArticleState.PUBLISHED);
-        article1.setCategories(categoriesSport);
-        article1.setAuthor(user);
-        article1.setEditor(editorUser);
-        article1.setPublishedAt(Instant.now());
         if (!articleRepository.existsById(1L)) { // pokud není žádný článek, vytvoříme jeden
-            log.info("Creating articel {}", article1.getTitle());
-            articleRepository.save(article1);
+            Article article1 = new Article();
+            article1.setTitle("Football News");
+            article1.setArticleState(ArticleState.PUBLISHED);
+            article1.setCategories(categoriesSport);
+            article1.setAuthor(chiefUser);
+            article1.setEditor(editorUser);
+            article1.setPublishedAt(Instant.now());
+            log.info("Creating article {}", article1.getTitle());
+
+            article1 = articleRepository.save(article1);
+
             String content = """
                     <h1>Football News</h1>
                     <p>This is the content of the football news article.</p>
@@ -130,23 +106,23 @@ public class DataInitializer implements CommandLineRunner {
             version.setArticle(article1);
             version.setContent(content);
             version.setVersionNumber(1);
-            version.setCreatedBy(user);
+            version.setCreatedBy(chiefUser);
             articleVersionRepository.save(version);
         }
 
 
-        if (!articleRepository.existsById(2L) || articleRepository.existsById(6L)) { // pokud není žádný článek, vytvoříme jeden
+        if (articleRepository.count() < 5) { // pokud není žádný článek, vytvoříme jeden
             for (int i = 0; i < 5; i++) {
                 Article article = new Article();
                 article.setTitle("Ekonomy News");
                 article.setArticleState(ArticleState.PUBLISHED);
                 article.setCategories(economyCategories);
-                article.setAuthor(user);
+                article.setAuthor(chiefUser);
                 article.setEditor(editorUser);
                 article.setPublishedAt(Instant.now());
-                log.info("Creating articel {}", article.getTitle());
+                log.info("Creating article {}", article.getTitle());
                 article.setTitle("Ekonomy News " + (i + 1));
-                articleRepository.save(article);
+                article = articleRepository.save(article);
 
                 String content = """
                         <h1>Ekonomi News """ + (i + 1) + """
@@ -169,7 +145,7 @@ public class DataInitializer implements CommandLineRunner {
                 version.setArticle(article);
                 version.setContent(content);
                 version.setVersionNumber(1);
-                version.setCreatedBy(user);
+                version.setCreatedBy(chiefUser);
 
                 articleVersionRepository.save(version);
             }

@@ -7,8 +7,4 @@
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <includeAll path="database" relativeToChangelogFile="true"/>
-
-    <includeAll path="data" relativeToChangelogFile="true"/>
-
-
 </databaseChangeLog>
