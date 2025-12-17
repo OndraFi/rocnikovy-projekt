@@ -17,7 +17,7 @@ public class FileStorageService {
     private final Path root;
 
     public FileStorageService(@Value("${app.storage.images}") String storagePath) {
-        this.root = Paths.get(storagePath);
+        this.root = Paths.get(storagePath).toAbsolutePath().normalize();
     }
 
     @PostConstruct
@@ -31,7 +31,7 @@ public class FileStorageService {
 
     public String store(MultipartFile file, String filename) {
         try {
-            Path target = root.resolve(filename);
+            Path target = root.resolve(filename).normalize();
             Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
             return target.toString();
         } catch (IOException e) {
