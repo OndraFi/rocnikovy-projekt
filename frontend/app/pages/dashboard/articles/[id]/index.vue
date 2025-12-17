@@ -123,7 +123,30 @@
             <html-render :html="article.content" />
           </div>
 
-          <TiptapEditor v-else v-model="form.content"/>
+          <div v-else class="space-y-3">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div class="flex-1">
+                <USelect
+                    v-model="selectedVersion"
+                    :items="versionOptions"
+                    placeholder="Vyberte verzi"
+                    class="w-full"
+                    :disabled="versionsLoading"
+                />
+                <p v-if="versionsError" class="text-xs text-red-600 mt-1">{{ versionsError }}</p>
+              </div>
+              <UButton
+                  variant="outline"
+                  :disabled="!selectedVersion || versionLoading"
+                  :loading="versionLoading"
+                  @click="loadSelectedVersion"
+              >
+                Načíst verzi
+              </UButton>
+            </div>
+
+            <TiptapEditor v-model="form.content"/>
+          </div>
 
           <!--        <UTextarea-->
           <!--            v-else-->
@@ -166,7 +189,17 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ArticleDetailResponseArticleStateEnum, UpdateArticleRequestArticleStateEnum, UserResponseRoleEnum, type ArticleResponse, type GetArticleRequest, type UpdateArticleRequest } from '~~/api';
+import {
+  ArticleDetailResponseArticleStateEnum,
+  UpdateArticleRequestArticleStateEnum,
+  UserResponseRoleEnum,
+  type ArticleResponse,
+  type ArticleVersionResponse,
+  type GetArticleRequest,
+  type GetArticleVersionRequest,
+  type ListArticleVersionsRequest,
+  type UpdateArticleRequest
+} from '~~/api';
 import UserSelect from "~/components/dashboard/userSelect.vue";
 
 
@@ -188,6 +221,11 @@ export default defineComponent({
         editor: null,
         categories: [] as Array<number>,
       },
+      versions: [] as ArticleVersionResponse[],
+      versionsLoading: false,
+      versionsError: '',
+      selectedVersion: null as number | null,
+      versionLoading: false,
       authStore: useAuthStore(),
       UserResponseRoleEnum,
       ArticleDetailResponseArticleStateEnum
@@ -198,6 +236,17 @@ export default defineComponent({
     definePageMeta({ layout: 'dashboard' })
     const toast = useToast()
     return { toast }
+  },
+
+  computed: {
+    versionOptions(): { label: string; value: number }[] {
+      return (this.versions || [])
+          .filter((v) => v?.versionNumber != null)
+          .map((v) => ({
+            value: v.versionNumber as number,
+            label: this.formatVersionLabel(v)
+          }))
+    }
   },
 
   methods: {
@@ -239,6 +288,67 @@ export default defineComponent({
           this.form.categories = Array.from(this.article.categories).map(c=>c.id)
       }
       this.isEditing = !this.isEditing
+      if (this.isEditing) {
+        this.selectedVersion = null
+        this.fetchVersions()
+      }
+    },
+
+    async fetchVersions() {
+      if (!this.article?.id) return
+      this.versionsLoading = true
+      this.versionsError = ''
+      try {
+        const request: ListArticleVersionsRequest = {
+          articleId: this.article.id,
+          pageable: {
+            page: 0,
+            size: 50,
+            sort: ['versionNumber,desc']
+          }
+        }
+        const res = await this.$articlesVersionsApi.listArticleVersions(request)
+        this.versions = res?.versions || []
+      } catch (e: any) {
+        console.error(e)
+        this.versionsError = e?.message || 'Nepodařilo se načíst verze.'
+      } finally {
+        this.versionsLoading = false
+      }
+    },
+
+    async loadSelectedVersion() {
+      if (!this.article?.id || !this.selectedVersion) return
+      this.versionLoading = true
+      try {
+        const request: GetArticleVersionRequest = {
+          articleId: this.article.id,
+          versionNumber: this.selectedVersion
+        }
+        const res = await this.$articlesVersionsApi.getArticleVersion(request)
+        this.form.content = res?.content || ''
+        this.toast.add({ title: `Načtena verze ${this.selectedVersion}`, color: 'primary' })
+      } catch (e: any) {
+        console.error(e)
+        this.toast.add({
+          title: 'Chyba při načítání verze',
+          description: e?.message || 'Nepodařilo se načíst verzi.',
+          color: 'error'
+        })
+      } finally {
+        this.versionLoading = false
+      }
+    },
+
+    formatVersionLabel(version: ArticleVersionResponse): string {
+      const number = version?.versionNumber ?? '?'
+      const createdAt = version?.createdAt
+          ? new Date(version.createdAt as any).toLocaleString('cs-CZ')
+          : ''
+      const author = version?.createdBy?.fullName || version?.createdBy?.username || ''
+      if (createdAt && author) return `v${number} · ${createdAt} · ${author}`
+      if (createdAt) return `v${number} · ${createdAt}`
+      return `v${number}`
     },
 
     async saveArticle() {
