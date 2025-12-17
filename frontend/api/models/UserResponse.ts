@@ -43,6 +43,12 @@ export interface UserResponse {
      * @memberof UserResponse
      */
     role?: UserResponseRoleEnum;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserResponse
+     */
+    active?: boolean;
 }
 
 
@@ -80,6 +86,7 @@ export function UserResponseFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'username': json['username'] == null ? undefined : json['username'],
         'fullName': json['fullName'] == null ? undefined : json['fullName'],
         'role': json['role'] == null ? undefined : json['role'],
+        'active': json['active'] == null ? undefined : json['active'],
     };
 }
 
@@ -98,6 +105,7 @@ export function UserResponseToJSONTyped(value?: UserResponse | null, ignoreDiscr
         'username': value['username'],
         'fullName': value['fullName'],
         'role': value['role'],
+        'active': value['active'],
     };
 }
 
