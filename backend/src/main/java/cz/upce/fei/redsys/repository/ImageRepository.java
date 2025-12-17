@@ -13,4 +13,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     boolean existsByFilename(String fileName);
 
     void deleteByFilename(String fileName);
+
 }

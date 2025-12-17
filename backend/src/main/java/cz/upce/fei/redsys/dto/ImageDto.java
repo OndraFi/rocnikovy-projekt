@@ -2,6 +2,7 @@ package cz.upce.fei.redsys.dto;
 
 import cz.upce.fei.redsys.domain.Image;
 import lombok.Builder;
+import org.springframework.core.io.Resource;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +27,13 @@ public final class ImageDto {
             int size,
             long totalElements,
             int totalPages
+    ) {}
+
+    public record DownloadResource(
+            Resource resource,
+            String contentType,
+            long contentLength,
+            String originalFilename
     ) {}
 
     public static ImageResponse toResponse(Image image) {

@@ -5,6 +5,7 @@ import cz.upce.fei.redsys.dto.CategoryDto;
 import cz.upce.fei.redsys.dto.ErrorDto.ErrorResponse;
 import cz.upce.fei.redsys.dto.ImageDto;
 import cz.upce.fei.redsys.dto.ImageDto.ImageResponse;
+import cz.upce.fei.redsys.dto.ImageDto.DownloadResource;
 import cz.upce.fei.redsys.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,8 +16,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,19 +68,18 @@ public class ImageController {
             @ApiResponse(responseCode = "200", description = "Image found")
     })
     @GetMapping(value = "/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
-    public ResponseEntity<byte[]> get(@PathVariable String fileName) {
+    public ResponseEntity<Resource> get(@PathVariable String fileName) {
         log.debug("GET /api/images/{}", fileName);
 
-        Image image = imageService.get(fileName);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(image.getContentType()));
-        headers.setContentLength(image.getFileSize());
-        headers.setContentDispositionFormData("inline", image.getOriginalFilename());
+        DownloadResource image = imageService.get(fileName);
 
         return ResponseEntity.ok()
-                .headers(headers)
-                .body(image.getData());
+                .contentType(MediaType.parseMediaType(image.contentType()))
+                .contentLength(image.contentLength())
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(image.originalFilename())
+                        .build().toString())
+                .body(image.resource());
     }
 
     @Operation(summary = "List images", description = "List images with pagination", operationId = "listImages")
