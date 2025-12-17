@@ -5,7 +5,7 @@
       <template v-if="
         authStore.user?.role == UserResponseRoleEnum.Editor && 
         authStore.user?.id == article?.editor?.id &&
-        article?.articleState == ArticleDetailResponseArticleStateEnum.InReview
+        article?.articleState != ArticleDetailResponseArticleStateEnum.Published
         ">
         <UButton color="info" @click="onEdit">Editovat</UButton>
       </template>
@@ -20,6 +20,11 @@
           <UButton color="primary" @click="onPublish">Publikace</UButton>
         </template>
         <UButton color="error" @click="onDelete">Smazat</UButton>
+        <template v-if="
+          article?.articleState != ArticleDetailResponseArticleStateEnum.Published
+          ">
+          <UButton color="info" @click="onEdit">Editovat</UButton>
+        </template>
       </template>
 
       <!-- Admin action -->
@@ -49,7 +54,7 @@
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1">
             <!-- View mode title -->
-            <h1 v-if="!isEditing" class="text-3xl font-bold">
+            <h1 v-if="!isEditing || authStore.user?.role == UserResponseRoleEnum.Editor" class="text-3xl font-bold">
               {{ article.title }}
             </h1>
 
@@ -66,14 +71,6 @@
             />
           </div>
 
-          <UButton
-              icon="i-heroicons-pencil-square"
-              variant="ghost"
-              size="sm"
-              @click="toggleEdit"
-          >
-            {{ isEditing ? 'Zrušit' : 'Upravit' }}
-          </UButton>
         </div>
 
         <!-- Meta info -->
@@ -85,7 +82,7 @@
 
           <div>
             <h3 class="font-semibold text-gray-500">Editor</h3>
-            <p v-if="!isEditing">{{ article.editor?.fullName ?? '—' }}</p>
+            <p v-if="!isEditing  || authStore.user?.role == UserResponseRoleEnum.Editor">{{ article.editor?.fullName ?? '—' }}</p>
             <user-select v-else v-model="form.editor"/>
           </div>
 
@@ -103,7 +100,7 @@
         <!-- Categories -->
         <div>
           <h3 class="font-semibold text-gray-500 mb-2">Kategorie</h3>
-          <div v-if="!isEditing">
+          <div v-if="!isEditing  || authStore.user?.role == UserResponseRoleEnum.Editor">
             <div v-if="article.categories" class="flex gap-2 flex-wrap">
               <UBadge v-for="cat in Array.from(article.categories)" :key="cat.id" color="gray">
                 {{ cat.name }}
@@ -118,7 +115,7 @@
         <div>
           <h2 class="text-xl font-semibold mb-2">Obsah článku</h2>
 
-          <div v-if="!isEditing" class="prose dark:prose-invert max-w-none">
+          <div v-if="!isEditing || authStore.user?.role == UserResponseRoleEnum.ChiefEditor" class="prose dark:prose-invert max-w-none">
             <p v-if="!article.content" class="text-gray-400">Bez obsahu</p>
             <html-render :html="article.content" />
           </div>
@@ -169,12 +166,6 @@
           </UButton>
         </div>
 
-        <!-- Actions -->
-        <div v-else class="flex gap-4 justify-end pt-2">
-          <UButton color="info" @click="onEdit">Editovat</UButton>
-          <UButton color="error" @click="onDelete">Smazat</UButton>
-          <UButton color="primary" @click="onPublish">Publikovat</UButton>
-        </div>
       </div>
 
       <!-- Not found -->
