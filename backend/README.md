@@ -2,6 +2,16 @@
 
 ---
 
+## Spuštění v dockeru
+První běh nutné spustit takto:
+```
+docker-compose up -d --build
+```
+následující lze pak takto:
+```
+docker-compose up -d
+```
+
 ## open api generátor
 Jak generovat api clienta pro frontend?
 1. musí běžet spring aplikace na portu 8080

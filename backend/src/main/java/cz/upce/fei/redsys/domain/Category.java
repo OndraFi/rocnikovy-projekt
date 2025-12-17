@@ -1,10 +1,8 @@
 package cz.upce.fei.redsys.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +10,7 @@ import java.util.Set;
 @Table(name = "categories")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Category {
@@ -27,5 +26,6 @@ public class Category {
     private String description;
 
     @ManyToMany(mappedBy = "categories")
+    @Builder.Default
     private Set<Article> articles = new HashSet<>();
 }
