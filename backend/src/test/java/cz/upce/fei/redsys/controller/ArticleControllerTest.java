@@ -19,12 +19,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -164,7 +162,7 @@ public class ArticleControllerTest {
                 1
         );
 
-        when(articleService.list(any(Pageable.class), new ArrayList<>())).thenReturn(mockResponse);
+        when(articleService.list(any(Pageable.class), any())).thenReturn(mockResponse);
 
         mockMvc.perform(get(API_BASE)
                         .with(csrf())
