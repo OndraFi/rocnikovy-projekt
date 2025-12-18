@@ -19,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -66,8 +67,8 @@ public class ArticleControllerTest {
                 TEST_EDITOR
         );
 
-        UserResponse authorResponse = new UserResponse(1L, TEST_AUTHOR, "Test Author", UserRole.EDITOR);
-        UserResponse editorResponse = new UserResponse(2L, TEST_EDITOR, "Test Editor", UserRole.EDITOR);
+        UserResponse authorResponse = new UserResponse(1L, TEST_AUTHOR, "Test Author", UserRole.EDITOR, true);
+        UserResponse editorResponse = new UserResponse(2L, TEST_EDITOR, "Test Editor", UserRole.EDITOR, true);
         CategoryResponse categoryResponse = new CategoryResponse(CATEGORY_ID, "Technology","Technology description");
 
         ArticleDetailResponse mockResponse = ArticleDetailResponse.builder()
@@ -101,7 +102,7 @@ public class ArticleControllerTest {
     @Test
     @WithMockUser(username = TEST_AUTHOR)
     void get_ShouldReturnArticleAnd200() throws Exception {
-        UserResponse authorResponse = new UserResponse(1L, TEST_AUTHOR, "Test Author", UserRole.EDITOR);
+        UserResponse authorResponse = new UserResponse(1L, TEST_AUTHOR, "Test Author", UserRole.EDITOR, true);
         CategoryResponse categoryResponse = new CategoryResponse(CATEGORY_ID, "Technology","Technology description");
 
         ArticleDetailResponse mockResponse = ArticleDetailResponse.builder()
@@ -131,8 +132,8 @@ public class ArticleControllerTest {
     @Test
     @WithMockUser(username = TEST_AUTHOR)
     void list_ShouldReturnPaginatedArticlesAnd200() throws Exception {
-        UserResponse author1 = new UserResponse(1L, "author1", "Author One", UserRole.EDITOR);
-        UserResponse author2 = new UserResponse(2L, "author2", "Author Two", UserRole.EDITOR);
+        UserResponse author1 = new UserResponse(1L, "author1", "Author One", UserRole.EDITOR, true);
+        UserResponse author2 = new UserResponse(2L, "author2", "Author Two", UserRole.EDITOR, true);
         CategoryResponse categoryResponse = new CategoryResponse(CATEGORY_ID, "Technology","Technology description");
 
         ArticleResponse article1 = ArticleResponse.builder()
@@ -163,7 +164,7 @@ public class ArticleControllerTest {
                 1
         );
 
-        when(articleService.list(any(Pageable.class))).thenReturn(mockResponse);
+        when(articleService.list(any(Pageable.class), new ArrayList<>())).thenReturn(mockResponse);
 
         mockMvc.perform(get(API_BASE)
                         .with(csrf())
@@ -191,8 +192,8 @@ public class ArticleControllerTest {
                 TEST_EDITOR
         );
 
-        UserResponse authorResponse = new UserResponse(1L, TEST_AUTHOR, "Test Author", UserRole.EDITOR);
-        UserResponse editorResponse = new UserResponse(2L, TEST_EDITOR, "Test Editor", UserRole.EDITOR);
+        UserResponse authorResponse = new UserResponse(1L, TEST_AUTHOR, "Test Author", UserRole.EDITOR, true);
+        UserResponse editorResponse = new UserResponse(2L, TEST_EDITOR, "Test Editor", UserRole.EDITOR, true);
         CategoryResponse categoryResponse = new CategoryResponse(CATEGORY_ID, "Technology","Technology description");
 
         ArticleDetailResponse mockResponse = ArticleDetailResponse.builder()

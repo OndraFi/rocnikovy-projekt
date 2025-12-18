@@ -47,7 +47,7 @@ public class AuthControllerTest {
     @Test
     void register_ShouldReturnUserAnd200() throws Exception {
         RegisterRequest request = new RegisterRequest(TEST_USER, TEST_FULLNAME,TEST_EMAIL, TEST_PASS);
-        UserResponse mockUserResponse = new UserResponse(1L, TEST_USER, TEST_FULLNAME, TEST_ROLE);
+        UserResponse mockUserResponse = new UserResponse(1L, TEST_USER, TEST_FULLNAME, TEST_ROLE, true);
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(mockUserResponse);
 

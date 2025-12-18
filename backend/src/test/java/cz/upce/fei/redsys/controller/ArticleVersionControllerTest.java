@@ -59,8 +59,8 @@ public class ArticleVersionControllerTest {
         when(articleService.requireArticleById(TEST_ARTICLE_ID)).thenReturn(mockArticle);
 
         // Mock versions (without content)
-        UserResponse creator1 = new UserResponse(1L, "creator1", "Creator One", UserRole.EDITOR);
-        UserResponse creator2 = new UserResponse(2L, "creator2", "Creator Two", UserRole.EDITOR);
+        UserResponse creator1 = new UserResponse(1L, "creator1", "Creator One", UserRole.EDITOR, true);
+        UserResponse creator2 = new UserResponse(2L, "creator2", "Creator Two", UserRole.EDITOR, true);
 
         ArticleVersionResponse version1 = ArticleVersionResponse.builder()
                 .id(1L)
@@ -118,7 +118,7 @@ public class ArticleVersionControllerTest {
         when(articleVersionService.getVersion(mockArticle, TEST_VERSION_NUMBER))
                 .thenReturn(mockVersion);
 
-       new UserResponse(1L, "creator", "Creator Name", UserRole.EDITOR);
+       new UserResponse(1L, "creator", "Creator Name", UserRole.EDITOR, true);
 
         when(mockVersion.getId()).thenReturn(1L);
         when(mockVersion.getVersionNumber()).thenReturn(TEST_VERSION_NUMBER);
@@ -172,7 +172,7 @@ public class ArticleVersionControllerTest {
         when(articleService.requireArticleById(TEST_ARTICLE_ID)).thenReturn(mockArticle);
 
         // Mock single version
-        UserResponse creator = new UserResponse(1L, "creator", "Creator", UserRole.EDITOR);
+        UserResponse creator = new UserResponse(1L, "creator", "Creator", UserRole.EDITOR, true);
 
         ArticleVersionResponse version = ArticleVersionResponse.builder()
                 .id(1L)

@@ -201,7 +201,7 @@ public class ArticleServiceTest {
         Page<Article> page = new PageImpl<>(List.of(mockArticle, article2), pageable, 2);
         when(articleRepository.findAll(pageable)).thenReturn(page);
 
-        PaginatedArticleResponse response = articleService.list(pageable);
+        PaginatedArticleResponse response = articleService.list(pageable, new ArrayList<>());
 
         assertNotNull(response);
         assertEquals(2, response.articles().size());
@@ -218,7 +218,7 @@ public class ArticleServiceTest {
         Page<Article> emptyPage = new PageImpl<>(List.of(), pageable, 0);
         when(articleRepository.findAll(pageable)).thenReturn(emptyPage);
 
-        PaginatedArticleResponse response = articleService.list(pageable);
+        PaginatedArticleResponse response = articleService.list(pageable, new ArrayList<>());
 
         assertNotNull(response);
         assertEquals(0, response.articles().size());

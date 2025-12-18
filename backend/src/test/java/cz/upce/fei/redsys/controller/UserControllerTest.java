@@ -38,7 +38,7 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void list_ShouldReturnPaginatedUsers() throws Exception {
         PaginatedUserResponse response = new PaginatedUserResponse(
-                List.of(new UserResponse(1L, "john", "John Doe", null)),
+                List.of(new UserResponse(1L, "john", "John Doe", null, true)),
                 0, 20, 1, 1
         );
 
@@ -55,7 +55,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void block_ShouldReturnBlockedUser() throws Exception {
-        UserResponse blocked = new UserResponse(1L, "john", "John Doe", null);
+        UserResponse blocked = new UserResponse(1L, "john", "John Doe", null, false);
 
         when(userService.blockUser("john"))
                 .thenReturn(blocked);
@@ -70,7 +70,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void unblock_ShouldReturnUnblockedUser() throws Exception {
-        UserResponse unblocked = new UserResponse(1L, "john", "John Doe", null);
+        UserResponse unblocked = new UserResponse(1L, "john", "John Doe", null, true);
 
         when(userService.unblockUser("john"))
                 .thenReturn(unblocked);

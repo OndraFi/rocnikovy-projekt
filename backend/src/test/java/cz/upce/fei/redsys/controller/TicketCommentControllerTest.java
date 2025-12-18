@@ -53,8 +53,8 @@ public class TicketCommentControllerTest {
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void list_ShouldReturnPaginatedCommentsAnd200() throws Exception {
-        UserResponse author1 = new UserResponse(1L, "author1", "Author One", UserRole.USER);
-        UserResponse author2 = new UserResponse(2L, "author2", "Author Two", UserRole.USER);
+        UserResponse author1 = new UserResponse(1L, "author1", "Author One", UserRole.USER, true);
+        UserResponse author2 = new UserResponse(2L, "author2", "Author Two", UserRole.USER, true);
 
         TicketCommentResponse comment1 = TicketCommentResponse.builder()
                 .number(1)
@@ -104,7 +104,7 @@ public class TicketCommentControllerTest {
     @WithMockUser(username = TEST_USERNAME)
     void create_ShouldReturnCommentAnd201() throws Exception {
         CreateTicketCommentRequest request = new CreateTicketCommentRequest(TEST_CONTENT);
-        UserResponse authorResponse = new UserResponse(1L, TEST_USERNAME, "Test User", UserRole.USER);
+        UserResponse authorResponse = new UserResponse(1L, TEST_USERNAME, "Test User", UserRole.USER, true);
 
         TicketCommentResponse mockResponse = TicketCommentResponse.builder()
                 .number(TEST_COMMENT_NUMBER)
@@ -131,7 +131,7 @@ public class TicketCommentControllerTest {
     @WithMockUser(username = TEST_USERNAME)
     void update_ShouldReturnUpdatedCommentAnd200() throws Exception {
         UpdateTicketCommentRequest request = new UpdateTicketCommentRequest("Updated comment content");
-        UserResponse authorResponse = new UserResponse(1L, TEST_USERNAME, "Test User", UserRole.USER);
+        UserResponse authorResponse = new UserResponse(1L, TEST_USERNAME, "Test User", UserRole.USER, true);
 
         TicketCommentResponse mockResponse = TicketCommentResponse.builder()
                 .number(TEST_COMMENT_NUMBER)
